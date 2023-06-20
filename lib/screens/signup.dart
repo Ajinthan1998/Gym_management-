@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sample_app/screens/home_screen.dart';
@@ -16,6 +17,7 @@ class _SignupState extends State<Signup> {
   TextEditingController _userNameTextController = TextEditingController();
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
+  TextEditingController _addressTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +59,11 @@ class _SignupState extends State<Signup> {
                 const SizedBox(
                   height: 20,
                 ),
+                reusableTextField(
+                    "Enter Address", Icons.home, false, _addressTextController),
+                const SizedBox(
+                  height: 20,
+                ),
                 reusableTextField("Enter Password", Icons.lock_outlined, true,
                     _passwordTextController),
                 const SizedBox(
@@ -68,11 +75,24 @@ class _SignupState extends State<Signup> {
                           email: _emailTextController.text,
                           password: _passwordTextController.text)
                       .then((value) {
-                        print("Created New account");
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()));
-                  }).onError((error, stackTrace) {
-                    print("Error ${error.toString()}");
+                    String? uid = value.user?.uid;
+                    String? email = value.user?.email;
+                    String address = _addressTextController.text;
+
+                    //Save the user data to the firestore db
+                    CollectionReference usersCollection =
+                        FirebaseFirestore.instance.collection('users');
+                    usersCollection
+                        .doc(uid)
+                        .set({'email': email, 'address': address}).then((_) {
+                      print("Created New account");
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomeScreen()));
+                    }).onError((error, stackTrace) {
+                      print("Error ${error.toString()}");
+                    });
                   });
                 })
               ],

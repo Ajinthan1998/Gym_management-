@@ -5,6 +5,7 @@ import 'package:sample_app/screens/signup.dart';
 import 'package:sample_app/utils/colors.dart';
 
 import '../reusable_widgets/reusable_widgets.dart';
+import 'forgot_pw.dart';
 
 class Signin extends StatefulWidget {
   const Signin({Key? key}) : super(key: key);
@@ -45,6 +46,19 @@ class _SigninState extends State<Signin> {
                       ),
                       reusableTextField("Enter Password", Icons.lock_outline,
                           true, _passwordTextController),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return ForgotPasswordPage();
+                          }));
+                        },
+                        child: Text(
+                          'Forgot Password',
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                       SizedBox(
                         height: 20,
                       ),
@@ -54,6 +68,7 @@ class _SigninState extends State<Signin> {
                                 email: _emailTextController.text,
                                 password: _passwordTextController.text)
                             .then((value) {
+                          String? uid = value.user?.uid;
                           Navigator.push(
                               context,
                               MaterialPageRoute(
