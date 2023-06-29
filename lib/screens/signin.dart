@@ -1,11 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sample_app/screens/home_screen.dart';
 import 'package:sample_app/screens/signup.dart';
 import 'package:sample_app/utils/colors.dart';
-
 import '../reusable_widgets/reusable_widgets.dart';
-import 'forgot_pw.dart';
+import 'member/UserNav.dart';
+import 'member/forgot_pw.dart';
 
 class Signin extends StatefulWidget {
   const Signin({Key? key}) : super(key: key);
@@ -17,6 +16,7 @@ class Signin extends StatefulWidget {
 class _SigninState extends State<Signin> {
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,10 +69,11 @@ class _SigninState extends State<Signin> {
                                 password: _passwordTextController.text)
                             .then((value) {
                           String? uid = value.user?.uid;
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomeScreen()));
+
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => Home()));
+                          _emailTextController.clear();
+                          _passwordTextController.clear();
                         }).onError((error, stackTrace) {
                           print("Error ${error.toString()}");
                         });

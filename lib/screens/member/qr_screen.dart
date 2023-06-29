@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -11,15 +12,16 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sample_app/screens/signin.dart';
 
 import 'SecondRoute.dart';
+import 'UserNav.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class QRScreen extends StatefulWidget {
+  const QRScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<QRScreen> createState() => _QRScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _QRScreenState extends State<QRScreen> {
   String? email;
   String? address;
   String? uid;
@@ -29,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
     uid = user?.uid;
+    // email = user?.email;
 
     if (uid != null) {
       DocumentReference userDocRef =
@@ -42,28 +45,15 @@ class _HomeScreenState extends State<HomeScreen> {
           email = userData!['email'];
           address = userData['address'];
         });
-
-        // Text(email);
-        // Text("address");
       });
     }
     final GlobalKey globalKey = GlobalKey();
 
-    Future<void> convertQrToImg() async {
-      // RenderRepaintBoundary boundary =
-      //     globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      // ui.Image image = await boundary.toImage();
-      // final directory = (await getApplicationDocumentsDirectory()).path;
-      // ByteData? byteData =
-      //     await image.toByteData(format: ui.ImageByteFormat.png);
-      // Uint8List pngBytes = byteData!.buffer.asUint8List();
-      // File imgFile = File("$directory/qrCode.png");
-      // await imgFile.writeAsBytes(pngBytes);
-      // await Share.shareFiles([imgFile.path], text: "Your text share");
-    }
-
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      // extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text(email ?? ""),
+      ),
       body: Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -73,12 +63,12 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               FirebaseAuth.instance.signOut().then((value) {
                 print("Signed Out");
-                // setState(() {
-                //   uid = null;
-                //   email = null;
-                //   address = null;
-                // });
-                FirebaseAuth.instance.setPersistence(Persistence.NONE);
+                setState(() {
+                  uid = null;
+                  email = null;
+                  address = null;
+                });
+                // FirebaseAuth.instance.setPersistence(Persistence.NONE);
                 Navigator.push(
                     context, MaterialPageRoute(builder: (context) => Signin()));
               });
@@ -109,23 +99,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           SizedBox(height: 20.0),
           Text('Data: $email'),
-          ElevatedButton(
-            child: const Text('Share Qr'),
-            // Within the `FirstRoute` widget
-            onPressed: convertQrToImg,
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.of(context)
+                  .pop(MaterialPageRoute(builder: (context) => Home()));
+            },
+            child: Icon(Icons.navigate_before),
           ),
-          GestureDetector(
-            onTap: () => convertQrToImg(),
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Theme.of(context).primaryColor, width: 1)),
-              child: Center(
-                child: Text("Share"),
-              ),
-            ),
-          )
         ],
       )),
     );

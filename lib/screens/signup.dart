@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sample_app/screens/home_screen.dart';
 
 import '../reusable_widgets/reusable_widgets.dart';
 import '../utils/colors.dart';
+import 'member/UserNav.dart';
 
 class Signup extends StatefulWidget {
   const Signup({Key? key}) : super(key: key);
@@ -86,10 +86,8 @@ class _SignupState extends State<Signup> {
                         .doc(uid)
                         .set({'email': email, 'address': address}).then((_) {
                       print("Created New account");
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => HomeScreen()));
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Home()));
                     }).onError((error, stackTrace) {
                       print("Error ${error.toString()}");
                     });

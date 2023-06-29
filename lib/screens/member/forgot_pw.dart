@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../reusable_widgets/reusable_widgets.dart';
-import '../utils/colors.dart';
+import '../../reusable_widgets/reusable_widgets.dart';
+import '../../utils/colors.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({Key? key}) : super(key: key);
