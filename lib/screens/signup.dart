@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../reusable_widgets/reusable_widgets.dart';
 import '../utils/colors.dart';
-import 'member/UserNav.dart';
+import 'member/userNav.dart';
 
 class Signup extends StatefulWidget {
   const Signup({Key? key}) : super(key: key);

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 Image logoWidget(String imageName) {
@@ -47,24 +49,68 @@ Container signInSignUpButton(
     margin: const EdgeInsets.fromLTRB(0, 10, 0, 20),
     decoration: BoxDecoration(borderRadius: BorderRadius.circular(90)),
     child: ElevatedButton(
-        onPressed: () {
-          onTap();
-        },
-        child: Text(
-          isLogin? 'LOG IN' : 'SIGN UP',
-          style:const TextStyle(
-            color: Colors.black87, fontWeight: FontWeight.bold, fontSize:16),
-        ),
-      style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith((states){
-        if(states.contains(MaterialState.pressed)){
-          return Colors.black26;
-        }
-        return Colors.white;
-      }),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(borderRadius:BorderRadius.circular(30))
-        )
+      onPressed: () {
+        onTap();
+      },
+      child: Text(
+        isLogin ? 'LOG IN' : 'SIGN UP',
+        style: const TextStyle(
+            color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16),
       ),
+      style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.pressed)) {
+              return Colors.black26;
+            }
+            return Colors.white;
+          }),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)))),
     ),
   );
+}
+
+// void uid() {
+//   String? email;
+//   String? address;
+//   String? uid;
+//   final FirebaseAuth auth = FirebaseAuth.instance;
+//   final User? user = auth.currentUser;
+//   uid = user?.uid;
+//
+//   if (uid != null) {
+//     DocumentReference userDocRef =
+//         FirebaseFirestore.instance.collection('users').doc(uid);
+//
+//     userDocRef.get().then((DocumentSnapshot documentSnapshot) {
+//       // Map<String, dynamic> userData = documentSnapshot.data!.data()
+//       Map<String, dynamic>? userData =
+//           documentSnapshot.data() as Map<String, dynamic>?;
+//       setState(() {
+//         email = userData!['email'];
+//         address = userData['address'];
+//       });
+//     });
+//   }
+// }
+
+class UserDataFetcher {
+  static void fetchUserDataAndUpdateState(BuildContext context,
+      Function(String? email, String? address) setStateCallback) {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+    String? uid = user?.uid;
+
+    if (uid != null) {
+      DocumentReference userDocRef =
+          FirebaseFirestore.instance.collection('users').doc(uid);
+
+      userDocRef.get().then((DocumentSnapshot documentSnapshot) {
+        Map<String, dynamic>? userData =
+            documentSnapshot.data() as Map<String, dynamic>?;
+
+        setStateCallback(userData?['email'], userData?['address']);
+      });
+    }
+  }
 }

@@ -12,7 +12,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sample_app/screens/signin.dart';
 
 import 'SecondRoute.dart';
-import 'UserNav.dart';
+import 'userNav.dart';
 
 class QRScreen extends StatefulWidget {
   const QRScreen({Key? key}) : super(key: key);
@@ -83,7 +83,7 @@ class _QRScreenState extends State<QRScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const SecondRoute()),
+                MaterialPageRoute(builder: (context) => const ProgressChart()),
               );
             },
           ),
@@ -92,7 +92,7 @@ class _QRScreenState extends State<QRScreen> {
           RepaintBoundary(
             key: globalKey,
             child: QrImage(
-              data: email ?? "", //text for qR generator
+              data: uid ?? "", //text for qR generator
               version: QrVersions.auto,
               size: 200.0,
             ),
