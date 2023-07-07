@@ -13,6 +13,7 @@ import 'package:sample_app/screens/signin.dart';
 
 import 'SecondRoute.dart';
 import 'UserNav.dart';
+import 'qr_scan.dart';
 
 class QRScreen extends StatefulWidget {
   const QRScreen({Key? key}) : super(key: key);
@@ -83,7 +84,18 @@ class _QRScreenState extends State<QRScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const SecondRoute()),
+                MaterialPageRoute(builder: (context) => const ProgressChart()),
+              );
+            },
+          ),
+
+          ElevatedButton(
+            child: const Text('Open scanner'),
+            // Within the `FirstRoute` widget
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const QRScan()),
               );
             },
           ),

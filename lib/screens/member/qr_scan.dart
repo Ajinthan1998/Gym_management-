@@ -119,7 +119,7 @@ class _QRScanState extends State<QRScan>{
         if (attendanceType == 'In') {
           await attendanceDoc.set({
             'intime': currentTime,
-            'availability': "yes",
+            'availability': "Yes",
             'date'  : currentDate,
           }, SetOptions(merge: true)).then((_){
             print('Attendance document created/updated successfully');
