@@ -13,7 +13,8 @@ import 'package:sample_app/screens/signin.dart';
 
 import '../../services/authServices.dart';
 import 'SecondRoute.dart';
-import 'userNav.dart';
+import 'UserNav.dart';
+import 'qr_scan.dart';
 
 class QRScreen extends StatefulWidget {
   const QRScreen({Key? key}) : super(key: key);
@@ -86,11 +87,22 @@ class _QRScreenState extends State<QRScreen> {
             },
           ),
 
+          ElevatedButton(
+            child: const Text('Open scanner'),
+            // Within the `FirstRoute` widget
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const QRScan()),
+              );
+            },
+          ),
+
           //QR generator
           RepaintBoundary(
             key: globalKey,
             child: QrImage(
-              data: uid ?? "", //text for qR generator
+              data: email ?? "", //text for qR generator
               version: QrVersions.auto,
               size: 200.0,
             ),
