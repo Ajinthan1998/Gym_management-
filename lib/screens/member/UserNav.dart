@@ -46,7 +46,7 @@ class _HomeState extends State<Home> {
           IconButton(
               onPressed: () {
                 Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => QRScreen()));
+                    .push(MaterialPageRoute(builder: (context) => QrScreen()));
               },
               icon: Icon(Icons.qr_code))
         ],

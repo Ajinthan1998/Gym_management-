@@ -4,24 +4,23 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
+import 'package:share_plus/share_plus.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sample_app/screens/signin.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'dart:ui' as ui;
 import 'SecondRoute.dart';
-import 'UserNav.dart';
-
-class QRScreen extends StatefulWidget {
-  const QRScreen({Key? key}) : super(key: key);
+import 'qr_scan.dart';
+class QrScreen extends StatefulWidget {
+  const QrScreen({Key? key}) : super(key: key);
 
   @override
-  State<QRScreen> createState() => _QRScreenState();
+  State<QrScreen> createState() => _QrScreenState();
 }
 
-class _QRScreenState extends State<QRScreen> {
+class _QrScreenState extends State<QrScreen> {
   String? email;
   String? address;
   String? uid;
@@ -31,83 +30,117 @@ class _QRScreenState extends State<QRScreen> {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
     uid = user?.uid;
-    // email = user?.email;
 
     if (uid != null) {
       DocumentReference userDocRef =
-          FirebaseFirestore.instance.collection('users').doc(uid);
+      FirebaseFirestore.instance.collection('users').doc(uid);
 
       userDocRef.get().then((DocumentSnapshot documentSnapshot) {
         // Map<String, dynamic> userData = documentSnapshot.data!.data()
         Map<String, dynamic>? userData =
-            documentSnapshot.data() as Map<String, dynamic>?;
+        documentSnapshot.data() as Map<String, dynamic>?;
         setState(() {
           email = userData!['email'];
           address = userData['address'];
         });
+
+        // Text(email);
+        // Text("address");
       });
     }
     final GlobalKey globalKey = GlobalKey();
 
+    Future<void> convertQrToImg() async {
+      RenderRepaintBoundary boundary =
+      globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      ui.Image image = await boundary.toImage();
+      final directory = (await getApplicationDocumentsDirectory()).path;
+      ByteData? byteData =
+      await image.toByteData(format: ui.ImageByteFormat.png);
+      Uint8List pngBytes = byteData!.buffer.asUint8List();
+      File imgFile = File("$directory/qrCode.png");
+      await imgFile.writeAsBytes(pngBytes);
+      await Share.shareFiles([imgFile.path], text: "Your text share");
+    }
+
     return Scaffold(
-      // extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(email ?? ""),
-      ),
+      extendBodyBehindAppBar: true,
       body: Center(
           child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            child: Text("Logout"),
-            onPressed: () {
-              FirebaseAuth.instance.signOut().then((value) {
-                print("Signed Out");
-                setState(() {
-                  uid = null;
-                  email = null;
-                  address = null;
-                });
-                // FirebaseAuth.instance.setPersistence(Persistence.NONE);
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Signin()));
-              });
-            },
-          ),
-          Text(email ?? ""),
-          Text(address ?? ""),
-          Text(uid ?? ""),
-          ElevatedButton(
-            child: const Text('Open Qr'),
-            // Within the `FirstRoute` widget
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SecondRoute()),
-              );
-            },
-          ),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                child: Text("Logout"),
+                onPressed: () {
+                  FirebaseAuth.instance.signOut().then((value) {
+                    print("Signed Out");
+                    setState(() {
+                      uid = null;
+                      email = null;
+                      address = null;
+                    });
+                    // FirebaseAuth.instance.setPersistence(Persistence.NONE);
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => Signin()));
+                  });
+                },
+              ),
+              Text(email ?? ""),
+              Text(address ?? ""),
+              Text(uid ?? ""),
+              ElevatedButton(
+                child: const Text('Open Qr'),
+                // Within the `FirstRoute` widget
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SecondRoute()),
+                  );
+                },
+              ),
 
-          //QR generator
-          RepaintBoundary(
-            key: globalKey,
-            child: QrImage(
-              data: email ?? "", //text for qR generator
-              version: QrVersions.auto,
-              size: 200.0,
-            ),
-          ),
-          SizedBox(height: 20.0),
-          Text('Data: $email'),
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context)
-                  .pop(MaterialPageRoute(builder: (context) => Home()));
-            },
-            child: Icon(Icons.navigate_before),
-          ),
-        ],
-      )),
+              //QR generator
+              RepaintBoundary(
+                key: globalKey,
+
+                child:QrImageView(
+                  data: uid ?? "", //text for qR generator
+                  version: QrVersions.auto,
+                  size: 200.0,            ),
+              ),
+              SizedBox(height: 20.0),
+              Text('Data: $email'),
+              ElevatedButton(
+                child: const Text('Share Qr'),
+                // Within the `FirstRoute` widget
+                onPressed: convertQrToImg,
+              ),
+              GestureDetector(
+
+                onTap: () => convertQrToImg(),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Theme.of(context).primaryColor, width: 1)),
+                  child: Center(
+                    child: Text("Share"),
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                child: const Text('Open Scanner'),
+                // Within the `FirstRoute` widget
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => QRScan ()),
+                  );
+                },
+              ),
+            ],
+          )),
     );
   }
+
 }

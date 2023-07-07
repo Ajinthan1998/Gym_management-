@@ -73,7 +73,8 @@ class _SignupState extends State<Signup> {
                   FirebaseAuth.instance
                       .createUserWithEmailAndPassword(
                           email: _emailTextController.text,
-                          password: _passwordTextController.text)
+                          password: _passwordTextController.text
+                       )
                       .then((value) {
                     String? uid = value.user?.uid;
                     String? email = value.user?.email;
