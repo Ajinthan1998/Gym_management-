@@ -37,71 +37,73 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        // theme: ThemeData(),
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(brightness: Brightness.dark),
         home: Scaffold(
-      appBar: AppBar(
-        title: Text("JK Fitness"),
-        backgroundColor: Colors.black,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => QRScreen()));
-              },
-              icon: Icon(Icons.qr_code))
-        ],
-      ),
-      body: Center(
-        child: IndexedStack(
-          index: _selectedIndex,
-          children: _screens,
-        ),
-      ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.of(context)
-      //         .pop(MaterialPageRoute(builder: (context) => SecondPage()));
-      //   },
-      //   child: Icon(Icons.navigate_before),
-      // ),
-      bottomNavigationBar: Container(
-        color: Colors.black,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
-          child: GNav(
+          appBar: AppBar(
+            title: Text("JK Fitness"),
             backgroundColor: Colors.black,
-            color: Colors.white,
-            activeColor: Colors.white,
-            tabBackgroundColor: Colors.grey.shade800,
-            padding: EdgeInsets.all(16),
-            gap: 10,
-            tabs: const [
-              GButton(
-                icon: Icons.home,
-                text: "Home",
-              ),
-              GButton(
-                icon: Icons.fitness_center,
-                text: "Workout",
-              ),
-              GButton(
-                icon: Icons.add,
-                text: "Add",
-              ),
-              GButton(
-                icon: Icons.bar_chart,
-                text: "Progress",
-              ),
-              GButton(
-                icon: Icons.person,
-                text: "Profile",
-              ),
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => QRScreen()));
+                  },
+                  icon: Icon(Icons.qr_code))
             ],
-            selectedIndex: _selectedIndex,
-            onTabChange: _onItemTapped,
           ),
-        ),
-      ),
-    ));
+          body: Center(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: _screens,
+            ),
+          ),
+          // floatingActionButton: FloatingActionButton(
+          //   onPressed: () {
+          //     Navigator.of(context)
+          //         .pop(MaterialPageRoute(builder: (context) => SecondPage()));
+          //   },
+          //   child: Icon(Icons.navigate_before),
+          // ),
+          bottomNavigationBar: Container(
+            color: Colors.black,
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
+              child: GNav(
+                backgroundColor: Colors.black,
+                color: Colors.white,
+                activeColor: Colors.white,
+                tabBackgroundColor: Colors.grey.shade800,
+                padding: EdgeInsets.all(16),
+                gap: 10,
+                tabs: const [
+                  GButton(
+                    icon: Icons.home,
+                    text: "Home",
+                  ),
+                  GButton(
+                    icon: Icons.fitness_center,
+                    text: "Workout",
+                  ),
+                  GButton(
+                    icon: Icons.add,
+                    text: "Add",
+                  ),
+                  GButton(
+                    icon: Icons.bar_chart,
+                    text: "Progress",
+                  ),
+                  GButton(
+                    icon: Icons.person,
+                    text: "Profile",
+                  ),
+                ],
+                selectedIndex: _selectedIndex,
+                onTabChange: _onItemTapped,
+              ),
+            ),
+          ),
+        ));
   }
 }

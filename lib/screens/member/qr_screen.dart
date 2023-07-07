@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sample_app/screens/signin.dart';
 
+import '../../services/authServices.dart';
 import 'SecondRoute.dart';
 import 'userNav.dart';
 
@@ -26,27 +27,24 @@ class _QRScreenState extends State<QRScreen> {
   String? address;
   String? uid;
   String _data = "";
-  @override
-  Widget build(BuildContext context) {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    final User? user = auth.currentUser;
-    uid = user?.uid;
-    // email = user?.email;
+
+  Future<void> getUserData() async {
+    final authService = AuthService();
+    uid = await authService.getCurrentUserUid();
 
     if (uid != null) {
-      DocumentReference userDocRef =
-          FirebaseFirestore.instance.collection('users').doc(uid);
-
-      userDocRef.get().then((DocumentSnapshot documentSnapshot) {
-        // Map<String, dynamic> userData = documentSnapshot.data!.data()
-        Map<String, dynamic>? userData =
-            documentSnapshot.data() as Map<String, dynamic>?;
+      final userData = await authService.getUserData(uid!);
+      if (userData != null) {
         setState(() {
-          email = userData!['email'];
+          email = userData['email'];
           address = userData['address'];
         });
-      });
+      }
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final GlobalKey globalKey = GlobalKey();
 
     return Scaffold(
