@@ -58,7 +58,7 @@ class _BMIState extends State<BMI> {
                 obscureText: false,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'MBI',
+                  labelText: 'BMI',
                 ),
               ),
               ElevatedButton(

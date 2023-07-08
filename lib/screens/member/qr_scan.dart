@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -135,18 +136,31 @@ class _QRScanState extends State<QRScan>{
           });
         }
 
+        // int updatedAttendanceCount =await getCurrentAttendanceCount() ;
+        // print('Current Attendance Count: $updatedAttendanceCount');
+        //
+        // CollectionReference attendanceCollection = FirebaseFirestore.instance.collection('attendanceRegister');
+        // attendanceCollection
+        //     .doc(currentDate)
+        //     .set({
+        //   'attendanceCount': updatedAttendanceCount
+        // }, SetOptions(merge: true)).then((_) {
+        //   print("Created New account");
+        // }).onError((error, stackTrace) {
+        //   print("Error ${error.toString()}");
+        // });
         int updatedAttendanceCount =await getCurrentAttendanceCount() ;
-        print('Current Attendance Count: $updatedAttendanceCount');
+        final DatabaseReference attendanceCountRef =
+        FirebaseDatabase.instance.reference().child('attendanceCount');
 
-        CollectionReference attendanceCollection = FirebaseFirestore.instance.collection('attendanceRegister');
-        attendanceCollection
-            .doc(currentDate)
-            .set({
-          'attendanceCount': updatedAttendanceCount
-        }, SetOptions(merge: true)).then((_) {
-          print("Created New account");
-        }).onError((error, stackTrace) {
-          print("Error ${error.toString()}");
+        attendanceCountRef
+            .child('currentCount')
+            .set(updatedAttendanceCount)
+            .then((_) {
+          print('Updated Attendance Count in Realtime Database');
+        })
+            .catchError((error) {
+          print('Failed to update Attendance Count: $error');
         });
         // attendanceDoc.set({
         //   fieldToUpdate:DateTime.now(),
