@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/imageTile.dart';
-
+import '../../utils/workout_type.dart';
+import '../cookie/cookie_page.dart';
 
 class WorkoutScreen extends StatefulWidget {
   const WorkoutScreen({Key? key}) : super(key: key);
@@ -91,7 +92,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       workoutType[index][0],
                       style: TextStyle(
                         color:
-                        workoutType[index][1] ? Colors.red : Colors.white,
+                            workoutType[index][1] ? Colors.red : Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

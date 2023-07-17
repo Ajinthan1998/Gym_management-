@@ -44,8 +44,6 @@ class _QRScreenState extends State<QRScreen> {
   //   }
   // }
 
-
-
   @override
   Widget build(BuildContext context) {
     final GlobalKey globalKey = GlobalKey();
@@ -56,12 +54,12 @@ class _QRScreenState extends State<QRScreen> {
 
     if (uid != null) {
       DocumentReference userDocRef =
-      FirebaseFirestore.instance.collection('users').doc(uid);
+          FirebaseFirestore.instance.collection('users').doc(uid);
 
       userDocRef.get().then((DocumentSnapshot documentSnapshot) {
         // Map<String, dynamic> userData = documentSnapshot.data!.data()
         Map<String, dynamic>? userData =
-        documentSnapshot.data() as Map<String, dynamic>?;
+            documentSnapshot.data() as Map<String, dynamic>?;
         setState(() {
           email = userData!['email'];
           address = userData['address'];
@@ -121,7 +119,7 @@ class _QRScreenState extends State<QRScreen> {
           //QR generator
           RepaintBoundary(
             key: globalKey,
-            child: QrImageView(
+            child: QrImage(
               data: uid ?? "", //text for qR generator
               version: QrVersions.auto,
               size: 200.0,

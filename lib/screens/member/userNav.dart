@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:sample_app/screens/cookie/CWorkout.dart';
 
+import '../cookie/cHome.dart';
 import 'add_workout.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
@@ -77,10 +79,10 @@ class _HomeState extends State<Home> {
               child: GNav(
                 backgroundColor: Colors.black,
                 color: Colors.white,
-                activeColor: Colors.white,
-                tabBackgroundColor: Colors.grey.shade800,
+                activeColor: Colors.black,
+                tabBackgroundColor: Colors.white,
                 padding: EdgeInsets.all(16),
-                gap: 10,
+                gap: 5,
                 tabs: const [
                   GButton(
                     icon: Icons.home,
