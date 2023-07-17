@@ -13,7 +13,7 @@ Image logoWidget(String imageName) {
 }
 
 TextField reusableTextField(String text, IconData icon, bool isPasswordType,
-    TextEditingController controller) {
+    TextEditingController controller,{Widget? suffixIcon}) {
   return TextField(
     controller: controller,
     obscureText: isPasswordType,
@@ -26,6 +26,7 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
         icon,
         color: Colors.white70,
       ),
+
       labelText: text,
       labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
       filled: true,
@@ -34,7 +35,9 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
+      suffixIcon: suffixIcon,
     ),
+
     keyboardType: isPasswordType
         ? TextInputType.visiblePassword
         : TextInputType.emailAddress,

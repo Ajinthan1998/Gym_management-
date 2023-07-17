@@ -14,24 +14,18 @@ class QRScan extends StatefulWidget{
 }
 
 class _QRScanState extends State<QRScan>{
+  String role="";
   String currentDate = DateTime.now().toString().split(' ')[0];
   String currentTime = DateTime.now().toLocal().toString().split(' ')[1].substring(0, 5);
   final GlobalKey qrKey = GlobalKey(debugLabel: "QR");
   QRViewController? controller;
   String result ="";
-  // Future<int> getCurrentAttendanceCount() async {
-  //   QuerySnapshot snapshot = await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc()
-  //       .collection('attendance')
-  //       .where('date', isEqualTo: currentDate)
-  //       .get();
-  //
-  //   return snapshot.docs.length;
-  // }
-  Future<int> getCurrentAttendanceCount() async {
+
+
+  Future<int> getCurrentAttendanceCount(String role) async {
     QuerySnapshot usersSnapshot = await FirebaseFirestore.instance
         .collection('users')
+        .where('role', isEqualTo: role)
         .get();
 
     int totalCount = 0;
@@ -45,10 +39,36 @@ class _QRScanState extends State<QRScan>{
           .where('availability',isEqualTo: "Yes")
           .get();
       totalCount += attendanceSnapshot.docs.length;
+
     }
     return totalCount;
   }
 
+  Future<List<String>> getCurrentAvailableCoach() async {
+    QuerySnapshot usersSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('role', isEqualTo: "coach")
+        .get();
+
+    List<String> usernames = [];
+
+    for (QueryDocumentSnapshot userDoc in usersSnapshot.docs) {
+      QuerySnapshot attendanceSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userDoc.id)
+          .collection('attendance')
+          .where('date', isEqualTo: currentDate)
+          .where('availability', isEqualTo: "Yes")
+          .get();
+
+      if (attendanceSnapshot.docs.isNotEmpty) {
+        String username = userDoc.get('username');
+        usernames.add(username);
+      }
+    }
+
+    return usernames;
+  }
 
   @override
   void dispose(){
@@ -95,22 +115,19 @@ class _QRScanState extends State<QRScan>{
   //
   // }
 
-
   Future<void> handleButtonPress(String attendanceType) async {
     if (result.isNotEmpty) {
 
       //Collection reference for users
       print('Currentdate: $currentDate');
-
       // int currentAttendanceCount = await getCurrentAttendanceCount();
-
       CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
       DocumentReference userDoc = usersCollection.doc(result);
       userDoc.get().then((userSnapshot) async {
-
+       role =userSnapshot.get('role');
+       print('Role name :$role');
         // Retrieve the current value of inTime
         DocumentReference attendanceDoc = userDoc.collection('attendance').doc(currentDate);
-
         String fieldToUpdate = attendanceType == 'In' ? 'intime' : 'outtime';
 
         // attendanceDoc.update({
@@ -149,12 +166,26 @@ class _QRScanState extends State<QRScan>{
         // }).onError((error, stackTrace) {
         //   print("Error ${error.toString()}");
         // });
-        int updatedAttendanceCount =await getCurrentAttendanceCount() ;
         final DatabaseReference attendanceCountRef =
         FirebaseDatabase.instance.reference().child('attendanceCount');
 
-        attendanceCountRef
-            .child('currentCount')
+
+
+       int updatedAttendanceCount=0;
+
+        String roles="";
+
+        if(role=='user') {
+          updatedAttendanceCount = await getCurrentAttendanceCount('user');
+          roles="userCount";
+        }
+        else if(role=='coach') {
+          updatedAttendanceCount = await getCurrentAttendanceCount('coach');
+
+          roles="coachCount";
+        }
+
+        attendanceCountRef.child(roles)
             .set(updatedAttendanceCount)
             .then((_) {
           print('Updated Attendance Count in Realtime Database');
@@ -162,6 +193,18 @@ class _QRScanState extends State<QRScan>{
             .catchError((error) {
           print('Failed to update Attendance Count: $error');
         });
+
+
+       final DatabaseReference availableCoachRef = FirebaseDatabase.instance.reference().child('availableCoach');
+       List<String> coachname= await getCurrentAvailableCoach();
+       print('Name : $coachname');
+       availableCoachRef.set(coachname)
+           .then((_) {
+         print('Updated Attendance Count in Realtime Database');
+       })
+           .catchError((error) {
+         print('Failed to update Attendance Count: $error');
+       });
         // attendanceDoc.set({
         //   fieldToUpdate:DateTime.now(),
         //   'date'  : currentDate,
@@ -329,8 +372,5 @@ class _QRScanState extends State<QRScan>{
         ],
       ),
     );
-
   }
-
-
 }

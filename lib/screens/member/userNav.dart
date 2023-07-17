@@ -6,7 +6,7 @@ import 'add_workout.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
 import 'progress_screen.dart';
-import 'qr_screen.dart';
+import '../qr_screen.dart';
 import 'workout_screen.dart';
 
 class Home extends StatefulWidget {
@@ -41,7 +41,11 @@ class _HomeState extends State<Home> {
         theme: ThemeData(brightness: Brightness.dark),
         home: Scaffold(
           appBar: AppBar(
-            title: Text("JK Fitness"),
+            leading: Image.asset(
+              'assets/images/jk fitness.jpg',
+              width: 40, // Adjust the size as needed
+            ),
+            // title: Text("JK Fitness"),
             backgroundColor: Colors.black,
             actions: [
               IconButton(
@@ -69,7 +73,7 @@ class _HomeState extends State<Home> {
             color: Colors.black,
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
               child: GNav(
                 backgroundColor: Colors.black,
                 color: Colors.white,

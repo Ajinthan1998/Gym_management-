@@ -11,10 +11,10 @@ import 'package:flutter/rendering.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:sample_app/screens/signin.dart';
 
-import '../../services/authServices.dart';
-import 'SecondRoute.dart';
-import 'UserNav.dart';
-import 'qr_scan.dart';
+import '../services/authServices.dart';
+
+import 'member/UserNav.dart';
+import 'member/qr_scan.dart';
 
 class QRScreen extends StatefulWidget {
   const QRScreen({Key? key}) : super(key: key);
@@ -29,25 +29,45 @@ class _QRScreenState extends State<QRScreen> {
   String? uid;
   String _data = "";
 
-  Future<void> getUserData() async {
-    final authService = AuthService();
-    uid = await authService.getCurrentUserUid();
+  // Future<void> getUserData() async {
+  //   final authService = AuthService();
+  //   uid = await authService.getCurrentUserUid();
+  //
+  //   if (uid != null) {
+  //     final userData = await authService.getUserData(uid!);
+  //     if (userData != null) {
+  //       setState(() {
+  //         email = userData['email'];
+  //         address = userData['address'];
+  //       });
+  //     }
+  //   }
+  // }
 
-    if (uid != null) {
-      final userData = await authService.getUserData(uid!);
-      if (userData != null) {
-        setState(() {
-          email = userData['email'];
-          address = userData['address'];
-        });
-      }
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
     final GlobalKey globalKey = GlobalKey();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+    uid = user?.uid;
+    // email = user?.email;
 
+    if (uid != null) {
+      DocumentReference userDocRef =
+      FirebaseFirestore.instance.collection('users').doc(uid);
+
+      userDocRef.get().then((DocumentSnapshot documentSnapshot) {
+        // Map<String, dynamic> userData = documentSnapshot.data!.data()
+        Map<String, dynamic>? userData =
+        documentSnapshot.data() as Map<String, dynamic>?;
+        setState(() {
+          email = userData!['email'];
+          address = userData['address'];
+        });
+      });
+    }
     return Scaffold(
       // extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -80,10 +100,10 @@ class _QRScreenState extends State<QRScreen> {
             child: const Text('Open Qr'),
             // Within the `FirstRoute` widget
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProgressChart()),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const ProgressChart()),
+              // );
             },
           ),
 
@@ -101,14 +121,14 @@ class _QRScreenState extends State<QRScreen> {
           //QR generator
           RepaintBoundary(
             key: globalKey,
-            child: QrImage(
-              data: email ?? "", //text for qR generator
+            child: QrImageView(
+              data: uid ?? "", //text for qR generator
               version: QrVersions.auto,
               size: 200.0,
             ),
           ),
           SizedBox(height: 20.0),
-          Text('Data: $email'),
+          Text('Data: $uid'),
           FloatingActionButton(
             onPressed: () {
               Navigator.of(context)

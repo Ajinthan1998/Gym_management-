@@ -32,7 +32,7 @@ class ImageTile extends StatelessWidget {
             // image container
             Padding(
               padding:
-                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+              const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'SecondRoute.dart';
+
 
 class Progress extends StatelessWidget {
   const Progress({Key? key}) : super(key: key);
@@ -15,12 +15,8 @@ class Progress extends StatelessWidget {
             'Progress Page',
             style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
           ),
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProgressChart()));
-              },
-              child: Text("To MBI"))
+
+
           // Text(userId!),
         ],
       ),

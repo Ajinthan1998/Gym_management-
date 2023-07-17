@@ -16,9 +16,16 @@ class Signup extends StatefulWidget {
 class _SignupState extends State<Signup> {
   TextEditingController _userNameTextController = TextEditingController();
   TextEditingController _passwordTextController = TextEditingController();
+  TextEditingController _confirmPasswordTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
   TextEditingController _addressTextController = TextEditingController();
+  TextEditingController _phoneNumberTextController = TextEditingController();
+  TextEditingController _roleTextController = TextEditingController();
+  TextEditingController _dobTextController = TextEditingController();
+  // TextEditingController _joinedDateTextController = TextEditingController();
 
+  bool _isPasswordVisible = false;
+  bool _isPasswordMatch = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,13 +66,75 @@ class _SignupState extends State<Signup> {
                 const SizedBox(
                   height: 20,
                 ),
-                reusableTextField(
-                    "Enter Address", Icons.home, false, _addressTextController),
+                reusableTextField("Enter Password",
+                  Icons.lock_outlined,
+                  !_isPasswordVisible,
+                  _passwordTextController,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
                 const SizedBox(
                   height: 20,
                 ),
-                reusableTextField("Enter Password", Icons.lock_outlined, true,
-                    _passwordTextController),
+                reusableTextField("Enter Password again",
+                  Icons.lock_outlined,
+                  !_isPasswordVisible,
+                  _confirmPasswordTextController,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+                if (!_isPasswordMatch)
+                  const SizedBox(
+                    height: 20,
+                    child: Text(
+                      "Passwords do not match",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                const SizedBox(
+                  height: 20,
+                ),
+                reusableTextField("Enter Address", Icons.home, false, _addressTextController),
+                const SizedBox(
+                  height: 20,
+                ),
+                reusableTextField("Enter Phone number", Icons.lock_outlined, false,
+                    _phoneNumberTextController),
+                const SizedBox(
+                  height: 20,
+                ),
+                reusableTextField("Enter role", Icons.lock_outlined, false,
+                    _roleTextController),
+                const SizedBox(
+                  height: 20,
+                ),
+                reusableTextField("Enter DoB('YYYY-MM-DD')", Icons.lock_outlined, false,
+                    _dobTextController),
+                // const SizedBox(
+                //   height: 20,
+                // ),
+                // reusableTextField("Enter Joined date", Icons.lock_outlined, false,
+                //     _joinedDateTextController),
                 const SizedBox(
                   height: 20,
                 ),
@@ -78,14 +147,19 @@ class _SignupState extends State<Signup> {
                       .then((value) {
                     String? uid = value.user?.uid;
                     String? email = value.user?.email;
+                    String? username = _userNameTextController.text;
                     String address = _addressTextController.text;
+                    String phone_no = _phoneNumberTextController.text;
+                    String role = _roleTextController.text;
+                    String dob = _dobTextController.text;
+                    // String joined_date = _joinedDateTextController.text;
 
                     //Save the user data to the firestore db
                     CollectionReference usersCollection =
                         FirebaseFirestore.instance.collection('users');
                     usersCollection
                         .doc(uid)
-                        .set({'email': email, 'address': address}).then((_) {
+                        .set({'username':username,'email': email, 'address': address,'phone_no':phone_no,'role':role,'dob':dob}).then((_) {
                       print("Created New account");
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => Home()));

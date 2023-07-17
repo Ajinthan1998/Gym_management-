@@ -2,8 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:sample_app/firebase_options.dart';
 import 'package:sample_app/screens/coach/coachHome.dart';
-import 'package:sample_app/screens/member/SecondRoute.dart';
+import 'package:sample_app/screens/member/home_screen.dart';
+import 'package:sample_app/screens/member/availablepackages.dart';
 
+import 'screens/member/rev.dart';
 import 'screens/member/userNav.dart';
 import 'screens/signin.dart';
 
@@ -24,7 +26,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: const Signin(),
+      // home: const Signin(),
+      home: Signin(),
     );
   }
 }
