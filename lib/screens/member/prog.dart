@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sample_app/screens/member/BMICalculator.dart';
 
 class ChartScreen extends StatelessWidget {
   // final String userId;
@@ -15,11 +16,7 @@ class ChartScreen extends StatelessWidget {
     final User? user = auth.currentUser;
     uid = user?.uid;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('BMI Chart'),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
             .doc(uid)
@@ -90,10 +87,17 @@ class ChartScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => BMICalculator()));
+                },
+                child: Text('Calculate BMI'),
+              ),
             ],
           );
         },
-      ),
+
     );
   }
 

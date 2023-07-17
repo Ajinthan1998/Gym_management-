@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sample_app/screens/member/prog.dart';
 
 
 
@@ -9,16 +10,20 @@ class Progress extends StatelessWidget {
   Widget build(BuildContext context) {
     // String? userId = Provider.of<UserProvider>(context).userId;
     return Center(
-      child: Column(
-        children: [
-          Text(
-            'Progress Page',
-            style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
-          ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: [
+            Text(
+              'Progress Page',
+              style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
+            ),
 
+            ChartScreen(),
 
-          // Text(userId!),
-        ],
+            // Text(userId!),
+          ],
+        ),
       ),
     );
   }

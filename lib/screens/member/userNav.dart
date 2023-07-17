@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:sample_app/screens/cookie/CWorkout.dart';
+import 'package:sample_app/screens/member/prog.dart';
 
 import '../cookie/cHome.dart';
 import 'add_workout.dart';
@@ -26,7 +27,7 @@ class _HomeState extends State<Home> {
     HomeScreen(),
     WorkoutScreen(),
     AddWorkout(),
-    Progress(),
+    ChartScreen(),
     ProfileScreen()
   ];
 

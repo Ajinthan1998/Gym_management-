@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sample_app/screens/member/prog.dart';
 
+import 'nutrition.dart';
+import 'Timer.dart';
+
 class BMICalculator extends StatefulWidget {
   const BMICalculator({Key? key}) : super(key: key);
 
@@ -17,30 +20,33 @@ class _BMICalculatorState extends State<BMICalculator> {
   String _condition = "Select Data";
 
   TextEditingController _heightController = TextEditingController();
-  TextEditingController _weightController = TextEditingController();
+  TextEditingController _weightController =TextEditingController();
 
   String? email;
   String? address;
   String? uid;
   get bmiValue => bmi;
-  String curdate = DateTime.now().toString().split(' ')[0];
+  String curdate =DateTime.now().toString().split(' ')[0];
   @override
   Widget build(BuildContext context) {
     // final bool isAdult = true;
-    Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery
+        .of(context)
+        .size;
     final FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
     uid = user?.uid;
     // email = user?.email;
 
+
     if (uid != null) {
       DocumentReference userDocRef =
-          FirebaseFirestore.instance.collection('users').doc(uid);
+      FirebaseFirestore.instance.collection('users').doc(uid);
 
       userDocRef.get().then((DocumentSnapshot documentSnapshot) {
         // Map<String, dynamic> userData = documentSnapshot.data!.data()
         Map<String, dynamic>? userData =
-            documentSnapshot.data() as Map<String, dynamic>?;
+        documentSnapshot.data() as Map<String, dynamic>?;
         setState(() {
           email = userData!['email'];
           address = userData['address'];
@@ -59,8 +65,8 @@ class _BMICalculatorState extends State<BMICalculator> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+                  padding: EdgeInsets.symmetric(
+                      vertical: 20.0, horizontal: 10.0),
                   height: 200,
                   width: double.infinity,
                   decoration: BoxDecoration(color: Color(0xfff60000)),
@@ -77,7 +83,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                                   onTap: () {
                                     // Perform actions when the image button is tapped
                                   },
-                                  child: Text(
+                                  child:Text(
                                     "BMI",
                                     style: TextStyle(
                                       color: Colors.white,
@@ -121,6 +127,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                           ],
                         ),
                       ),
+
                       SizedBox(
                         width: double.infinity,
                         child: Container(
@@ -158,11 +165,11 @@ class _BMICalculatorState extends State<BMICalculator> {
                   ),
                 ),
                 Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xf2ffffff),
+                  decoration: BoxDecoration(color: Color(0xf2ffffff),
                   ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 0.0, vertical: 10.0
+                  ),
                   width: double.infinity,
                   // height: 800,
                   child: Column(
@@ -196,7 +203,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                           ],
                         ),
                       ),
-                      SizedBox(height: size.height * 0.02),
+                      SizedBox(height: size.height * 0.02,),
                       Container(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -210,12 +217,13 @@ class _BMICalculatorState extends State<BMICalculator> {
                                   hintText: 'Enter height in cm',
                                   hintStyle: TextStyle(
                                     fontSize: 20,
+                                    color: Colors.black,
                                   ),
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 60),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 60),
                                 ),
                                 style: TextStyle(
                                   fontSize: 20,
+                                  color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
 
@@ -264,7 +272,8 @@ class _BMICalculatorState extends State<BMICalculator> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ],
+
+                           ],
                         ),
                       ),
                       SizedBox(height: size.height * 0.02),
@@ -290,22 +299,21 @@ class _BMICalculatorState extends State<BMICalculator> {
                             //   ),
                             // ),
                             Container(
-                              width:
-                                  300, // Set the desired width for the TextField
+                              width: 300, // Set the desired width for the TextField
                               child: TextField(
-                                controller:
-                                    _weightController, // TextEditingController to manage the input value
+                                controller: _weightController, // TextEditingController to manage the input value
                                 // keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   hintText: 'Enter weight in kg',
                                   hintStyle: TextStyle(
                                     fontSize: 20,
+                                    color: Colors.black,
                                   ),
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 60),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 60),
                                 ),
                                 style: TextStyle(
                                   fontSize: 20,
+                                  color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 onChanged: (value) {
@@ -358,19 +366,19 @@ class _BMICalculatorState extends State<BMICalculator> {
                               onPressed: () {
                                 setState(() {
                                   bmi = (_weight /
-                                          ((_height / 100) * (_height / 100)))
+                                      ((_height / 100) * (_height / 100)))
                                       .round()
                                       .toInt();
                                   // if (isAdult == true) {
-                                  if (bmi > 18.5 && bmi <= 25) {
-                                    _condition = " Normal";
-                                  } else if (bmi > 25 && bmi <= 30) {
-                                    _condition = " Overweight";
-                                  } else if (bmi > 30) {
-                                    _condition = " Obesity";
-                                  } else {
-                                    _condition = " Underweight";
-                                  }
+                                    if (bmi > 18.5 && bmi <= 25) {
+                                      _condition = " Normal";
+                                    } else if (bmi > 25 && bmi <= 30) {
+                                      _condition = " Overweight";
+                                    } else if (bmi > 30) {
+                                      _condition = " Obesity";
+                                    } else {
+                                      _condition = " Underweight";
+                                    }
 
                                   // } else {
                                   //   if (bmi < 5) {
@@ -385,18 +393,16 @@ class _BMICalculatorState extends State<BMICalculator> {
                                   //     _condition = " Obesity Class II";
                                   //   }
                                   // }
+
                                 });
                                 CollectionReference usersCollection =
-                                    FirebaseFirestore.instance
-                                        .collection('users');
-                                DocumentReference userDoc =
-                                    usersCollection.doc(uid);
-                                DocumentReference bmiDoc =
-                                    userDoc.collection('bmi').doc(curdate);
+                                FirebaseFirestore.instance.collection('users');
+                                DocumentReference userDoc = usersCollection.doc(uid);
+                                DocumentReference bmiDoc = userDoc.collection('bmi').doc(curdate);
                                 bmiDoc.set({
                                   'value': bmi,
                                   'time': DateTime.now(),
-                                  'category': _condition,
+                                  'category' : _condition,
                                 }).then((_) {
                                   print("Created New account");
                                 }).onError((error, stackTrace) {
@@ -415,55 +421,51 @@ class _BMICalculatorState extends State<BMICalculator> {
                             SizedBox(
                               width: 100,
                               child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xE4541414),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ChartScreen()));
-                                },
-                                child: Text("BMI Chart"),
-                              ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xE4541414),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ChartScreen()));
+                                  },
+                                  child: Text("BMI Chart"),),
                             ),
-                            SizedBox(
-                              width: size.width * 0.02,
-                            ),
+                            SizedBox(width: size.width * 0.02,),
                             SizedBox(
                               width: 100,
                               child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Color(0xE4541414),
                                   ),
-                                  onPressed: () {
-                                    // Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (context) =>
-                                    //             NutritionChart()));
-                                  },
-                                  child: Text("Diet Level")),
+                              onPressed: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) => NutritionChart()));
+                              },
+                              child: Text("Diet Level")
+                          ),
                             ),
+
                           ],
                         ),
+
                       ),
+
 
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF6F00FF),
                         ),
                         onPressed: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) => TimerPage()));
+                          Navigator.push(context,
+                              MaterialPageRoute(
+                                  builder: (context) => TimerPage()));
                         },
-                        child: Text("Timer"),
-                      ),
+                        child: Text("Timer"),),
                     ],
                   ),
                 ),
+
               ],
             ),
           ],
