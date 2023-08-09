@@ -47,7 +47,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white12,
+        backgroundColor: Colors.black,
         elevation: 0,
       ),
       body: Container(
@@ -67,7 +67,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           false, _emailTextController),
                       MaterialButton(
                         onPressed: passwordReset,
-                        child: Text('Rest Password'),
+                        child: Text(
+                          'Rest Password',
+                          style: TextStyle(color: Colors.white70),
+                        ),
                         color: Color(0xff9b1616),
                       )
                     ],

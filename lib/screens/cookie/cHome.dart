@@ -97,9 +97,9 @@ class _CHomeState extends State<CHome> with SingleTickerProviderStateMixin {
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  Workouts(category: "abs"),
-                  Workouts(category: "chest"),
-                  Workouts(category: "shoulder"),
+                  Workouts(category: "Abs"),
+                  Workouts(category: "Chest"),
+                  Workouts(category: "Shoulder"),
                 ],
               ),
             )

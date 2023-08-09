@@ -1,12 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:sample_app/firebase_options.dart';
-import 'package:sample_app/screens/coach/coachSalary.dart';
-import 'package:sample_app/screens/imgUpload/first.dart';
-import 'package:sample_app/screens/imgUpload/uploadform.dart';
-import 'package:sample_app/screens/member/PackageDetails.dart';
-import 'package:sample_app/screens/member/home_screen.dart';
-import 'package:sample_app/screens/member/nutrition.dart';
 
 import 'screens/member/userNav.dart';
 import 'screens/signin.dart';
@@ -28,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      home: Signin(),
+      home: const Signin(),
     );
   }
 }

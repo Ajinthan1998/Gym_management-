@@ -9,7 +9,6 @@ import 'package:video_player/video_player.dart';
 import 'package:path/path.dart' as path;
 
 import '../../utils/sharedPrefencesUtil.dart';
-import 'seeOwnWorkouts.dart';
 
 class AddOwnWorkouts extends StatefulWidget {
   const AddOwnWorkouts({Key? key}) : super(key: key);
@@ -310,17 +309,6 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
                   child: const Text('Save'),
                 ),
               ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff9b1616),
-              ),
-              child: Text("See own workouts"),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SeeOwnWorkouts()));
-                // });
-              },
             ),
           ],
         ),

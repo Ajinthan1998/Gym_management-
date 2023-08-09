@@ -5,37 +5,26 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:video_player/video_player.dart';
 import 'package:path/path.dart' as path;
 
-import '../../utils/sharedPrefencesUtil.dart';
-import 'seeOwnWorkouts.dart';
-
-class AddOwnWorkouts extends StatefulWidget {
-  const AddOwnWorkouts({Key? key}) : super(key: key);
+class UploadImg extends StatefulWidget {
+  const UploadImg({Key? key}) : super(key: key);
 
   @override
-  State<AddOwnWorkouts> createState() => _AddOwnWorkoutsState();
+  State<UploadImg> createState() => _UploadImgState();
 }
 
-class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
+class _UploadImgState extends State<UploadImg> {
   String? valueChoose;
   TextEditingController _instructionTextController = TextEditingController();
   TextEditingController _nameTextController = TextEditingController();
   TextEditingController _categoryController = TextEditingController();
-  TextEditingController _durationController = TextEditingController();
-  TextEditingController _restTimeController = TextEditingController();
 
   FirebaseStorage storage = FirebaseStorage.instance;
   CollectionReference imageCollection =
-      FirebaseFirestore.instance.collection('ownWorkouts');
-
-  CollectionReference usersCollection =
-      FirebaseFirestore.instance.collection('users');
+      FirebaseFirestore.instance.collection('img');
 
   XFile? pickedImageFile;
-  File? pickedVideoFile;
-  VideoPlayerController? videoController;
 
   Future<XFile?> _pickImage() async {
     final picker = ImagePicker();
@@ -45,24 +34,14 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
     return pickedImageFile;
   }
 
-  Future<File?> _pickVideo() async {
-    final picker = ImagePicker();
-    pickedVideoFile = File((await picker.pickVideo(
-      source: ImageSource.gallery,
-    ))!
-        .path);
-    return pickedVideoFile;
-  }
-
   Future<void> _upload() async {
-    String uid = await SharedPreferencesUtil.getUser() ?? '';
-    if (pickedImageFile == null && pickedVideoFile == null) {
+    if (pickedImageFile == null) {
       // No file picked, show an error message
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Error'),
-          content: const Text('Please pick a file first.'),
+          content: const Text('Please pick an image first.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -77,42 +56,22 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
     }
 
     String? imageUrl;
-    String? videoUrl;
     String? fileName;
 
-    if (pickedImageFile != null) {
-      fileName = path.basename(pickedImageFile!.path);
-      File imageFile = File(pickedImageFile!.path);
-      String imagePath = 'ownWorkouts/$fileName';
+    fileName = path.basename(pickedImageFile!.path);
+    File imageFile = File(pickedImageFile!.path);
 
-      await storage.ref().child(imagePath).putFile(
-            imageFile,
-            SettableMetadata(
-              customMetadata: {
-                'uploaded_by': uid,
-              },
-            ),
-          );
+    // Uploading the selected image with some custom metadata
+    await storage.ref(fileName).putFile(
+          imageFile,
+          SettableMetadata(
+            customMetadata: {
+              'uploaded_by': 'coach..',
+            },
+          ),
+        );
 
-      imageUrl = await storage.ref().child(imagePath).getDownloadURL();
-    }
-
-    if (pickedVideoFile != null) {
-      fileName = path.basename(pickedVideoFile!.path);
-      File videoFile = File(pickedVideoFile!.path);
-      String videoPath = 'ownWorkouts/$fileName';
-
-      await storage.ref().child(videoPath).putFile(
-            videoFile,
-            SettableMetadata(
-              customMetadata: {
-                'uploaded_by': uid,
-              },
-            ),
-          );
-
-      videoUrl = await storage.ref().child(videoPath).getDownloadURL();
-    }
+    imageUrl = await storage.ref(fileName).getDownloadURL();
 
     try {
       // Show confirmation message
@@ -139,18 +98,12 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
       );
 
       if (confirmUpload == true) {
-        DocumentReference userDoc = usersCollection.doc(uid);
-        DocumentReference ownWorkoutDoc =
-            userDoc.collection('ownWorkout').doc(fileName);
-        await ownWorkoutDoc.set({
+        await imageCollection.doc(fileName).set({
           if (imageUrl != null) 'url': imageUrl,
-          if (videoUrl != null) 'url': videoUrl,
           'fileName': fileName,
           'date': DateTime.now(),
-          'workoutName': _nameTextController.text,
+          'uploaded_by': 'Coach',
           'category': _categoryController.text,
-          'duration': _durationController.text,
-          'restTime': _restTimeController.text,
           'instructions': _instructionTextController.text,
         });
 
@@ -163,24 +116,15 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
     }
   }
 
-  List<String> listItem = ["chest", "abs", "shoulder", "triceps"];
-
-  @override
-  void initState() {
-    super.initState();
-    videoController = VideoPlayerController.network('');
-  }
-
-  @override
-  void dispose() {
-    videoController?.dispose();
-    super.dispose();
-  }
+  List<String> listItem = ["Chest", "Abs", "Shoulder", "Triceps"];
 
   @override
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Form"),
+      ),
       body: Container(
         padding: const EdgeInsets.only(left: 55, right: 55),
         child: Column(
@@ -242,25 +186,9 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
               ],
             ),
             TextFormField(
-              controller: _durationController,
-              decoration: InputDecoration(
-                labelText: "Workout duration(seconds)",
-                labelStyle:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            TextFormField(
-              controller: _restTimeController,
-              decoration: InputDecoration(
-                labelText: "Rest time",
-                labelStyle:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            TextFormField(
               controller: _instructionTextController,
               decoration: InputDecoration(
-                labelText: "Give the Instruction(seconds)",
+                labelText: "Give the Instruction",
                 labelStyle:
                     TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
@@ -275,28 +203,6 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
                   icon: const Icon(Icons.photo_library_sharp),
                   label: const Text('Pick Picture'),
                 ),
-                Column(
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        await _pickVideo();
-                        videoController =
-                            VideoPlayerController.file(pickedVideoFile!)
-                              ..initialize().then((_) {
-                                setState(() {});
-                              });
-                      },
-                      icon: const Icon(Icons.video_library_sharp),
-                      label: const Text('Pick Video'),
-                    ),
-                    // if (videoController != null &&
-                    //     videoController!.value.isInitialized)
-                    //   AspectRatio(
-                    //     aspectRatio: videoController!.value.aspectRatio,
-                    //     child: VideoPlayer(videoController!),
-                    //   ),
-                  ],
-                ),
               ],
             ),
             Container(
@@ -310,17 +216,6 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
                   child: const Text('Save'),
                 ),
               ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff9b1616),
-              ),
-              child: Text("See own workouts"),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SeeOwnWorkouts()));
-                // });
-              },
             ),
           ],
         ),

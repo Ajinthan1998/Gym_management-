@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
       .child('userCount');
 
   DatabaseReference available =
-  FirebaseDatabase.instance.reference().child('availableCoach');
+      FirebaseDatabase.instance.reference().child('availableCoach');
 
   final User currentUser = FirebaseAuth.instance.currentUser!;
   double _rating = 0;
@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (snapshot.exists) {
         final Map<String, dynamic> data =
-        snapshot.data() as Map<String, dynamic>;
+            snapshot.data() as Map<String, dynamic>;
 
         coaches.add(Coach(
           uid: snapshot.id,
@@ -269,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   width: 6,
                                 ),
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(15)),
+                                    BorderRadius.all(Radius.circular(15)),
                                 boxShadow: const [
                                   BoxShadow(
                                     color: Colors.white12,
@@ -299,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     return GridView.builder(
                                       scrollDirection: Axis.horizontal,
                                       gridDelegate:
-                                      SliverGridDelegateWithMaxCrossAxisExtent(
+                                          SliverGridDelegateWithMaxCrossAxisExtent(
                                         maxCrossAxisExtent: 200,
                                         mainAxisExtent: 130,
                                         crossAxisSpacing: 3.0,
@@ -310,11 +310,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Coach coach = coaches[index];
                                         return Column(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                              MainAxisAlignment.center,
                                           children: [
                                             CircleAvatar(
                                               backgroundImage:
-                                              NetworkImage(coach.imageUrl),
+                                                  NetworkImage(coach.imageUrl),
                                               radius: 50,
                                             ),
                                             SizedBox(height: 4),
@@ -387,7 +387,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -418,12 +418,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 review.username,
                                 style:
-                                TextStyle(height: 2, color: Colors.white),
+                                    TextStyle(height: 2, color: Colors.white),
                               ),
                               Text(
                                 review.review,
                                 style:
-                                TextStyle(height: 2, color: Colors.white),
+                                    TextStyle(height: 2, color: Colors.white),
                               ),
                               SizedBox(
                                 height: 5,
@@ -488,7 +488,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
-                        width: 300, // Set the desired width for each package box
+                        width:
+                            300, // Set the desired width for each package box
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: Colors.white24,
@@ -533,7 +534,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ],
                               ),
-                      ),
+                            ),
                           ],
                         ),
                       ),
@@ -559,9 +560,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Text("Select coach"),
               onPressed: () {
-
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => CoachSelectionScreen()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CoachSelectionScreen()));
               },
             ),
             //     Container(

@@ -20,10 +20,12 @@ class _UploadFormState extends State<UploadForm> {
   TextEditingController _instructionTextController = TextEditingController();
   TextEditingController _nameTextController = TextEditingController();
   TextEditingController _categoryController = TextEditingController();
+  TextEditingController _durationController = TextEditingController();
+  TextEditingController _restTimeController = TextEditingController();
 
   FirebaseStorage storage = FirebaseStorage.instance;
   CollectionReference imageCollection =
-      FirebaseFirestore.instance.collection('images');
+      FirebaseFirestore.instance.collection('workouts');
 
   XFile? pickedImageFile;
   File? pickedVideoFile;
@@ -74,9 +76,9 @@ class _UploadFormState extends State<UploadForm> {
     if (pickedImageFile != null) {
       fileName = path.basename(pickedImageFile!.path);
       File imageFile = File(pickedImageFile!.path);
+      String imagePath = 'workouts/$fileName';
 
-      // Uploading the selected image with some custom metadata
-      await storage.ref(fileName).putFile(
+      await storage.ref().child(imagePath).putFile(
             imageFile,
             SettableMetadata(
               customMetadata: {
@@ -85,15 +87,15 @@ class _UploadFormState extends State<UploadForm> {
             ),
           );
 
-      imageUrl = await storage.ref(fileName).getDownloadURL();
+      imageUrl = await storage.ref().child(imagePath).getDownloadURL();
     }
 
     if (pickedVideoFile != null) {
       fileName = path.basename(pickedVideoFile!.path);
       File videoFile = File(pickedVideoFile!.path);
+      String videoPath = 'workouts/$fileName';
 
-      // Uploading the selected video with some custom metadata
-      await storage.ref(fileName).putFile(
+      await storage.ref().child(videoPath).putFile(
             videoFile,
             SettableMetadata(
               customMetadata: {
@@ -102,7 +104,7 @@ class _UploadFormState extends State<UploadForm> {
             ),
           );
 
-      videoUrl = await storage.ref(fileName).getDownloadURL();
+      videoUrl = await storage.ref().child(videoPath).getDownloadURL();
     }
 
     try {
@@ -135,8 +137,10 @@ class _UploadFormState extends State<UploadForm> {
           if (videoUrl != null) 'url': videoUrl,
           'fileName': fileName,
           'date': DateTime.now(),
-          'uploaded_by': 'Coach',
+          'workoutName': _nameTextController.text,
           'category': _categoryController.text,
+          'duration': _durationController.text,
+          'restTime': _restTimeController.text,
           'instructions': _instructionTextController.text,
         });
 
@@ -149,7 +153,7 @@ class _UploadFormState extends State<UploadForm> {
     }
   }
 
-  List<String> listItem = ["Chest", "Abs", "Shoulder", "Triceps"];
+  List<String> listItem = ["chest", "abs", "shoulder", "triceps"];
 
   @override
   void initState() {
@@ -167,9 +171,6 @@ class _UploadFormState extends State<UploadForm> {
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Form"),
-      ),
       body: Container(
         padding: const EdgeInsets.only(left: 55, right: 55),
         child: Column(
@@ -231,9 +232,25 @@ class _UploadFormState extends State<UploadForm> {
               ],
             ),
             TextFormField(
+              controller: _durationController,
+              decoration: InputDecoration(
+                labelText: "Workout duration(seconds)",
+                labelStyle:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            TextFormField(
+              controller: _restTimeController,
+              decoration: InputDecoration(
+                labelText: "Rest time",
+                labelStyle:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+            TextFormField(
               controller: _instructionTextController,
               decoration: InputDecoration(
-                labelText: "Give the Instruction",
+                labelText: "Give the Instruction(seconds)",
                 labelStyle:
                     TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),

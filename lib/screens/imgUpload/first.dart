@@ -23,14 +23,14 @@ class ImgUp extends StatefulWidget {
 class _ImgUpState extends State<ImgUp> {
   FirebaseStorage storage = FirebaseStorage.instance;
   CollectionReference imageCollection =
-      FirebaseFirestore.instance.collection('packages');
+      FirebaseFirestore.instance.collection('workouts');
   late String url;
 
   Future<List<Map<String, dynamic>>> _loadMedia() async {
     List<Map<String, dynamic>> mediaFiles = [];
 
     final QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('images').get();
+        await FirebaseFirestore.instance.collection('workouts').get();
 
     for (final DocumentSnapshot doc in snapshot.docs) {
       final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -50,7 +50,7 @@ class _ImgUpState extends State<ImgUp> {
   // Delete the selected image/video
   // This function is called when a trash icon is pressed
   Future<void> _delete(String ref) async {
-    await storage.ref(ref).delete();
+    await storage.ref().child('workouts/$ref').delete();
     await imageCollection.doc(ref).delete();
 
     setState(() {});

@@ -77,9 +77,9 @@ class NutritionChart extends StatelessWidget {
                   }
 
                   var lastBmiDocument =
-                  bmiSnapshot.data?.docs.isNotEmpty ?? false
-                      ? bmiSnapshot.data!.docs[0]
-                      : null;
+                      bmiSnapshot.data?.docs.isNotEmpty ?? false
+                          ? bmiSnapshot.data!.docs[0]
+                          : null;
 
                   if (lastBmiDocument != null) {
                     cat = lastBmiDocument['category'];
@@ -96,14 +96,14 @@ class NutritionChart extends StatelessWidget {
                         category == cat;
                   }).map((doc) {
                     Map<String, dynamic>? data =
-                    doc.data() as Map<String, dynamic>?;
+                        doc.data() as Map<String, dynamic>?;
                     return NutritionItem(
                       id: doc.id,
                       foodTime:
-                      data!['foodTime'] != null ? data['foodTime'] : '',
+                          data!['foodTime'] != null ? data['foodTime'] : '',
                       food: data['food'] != null ? data['food'] : '',
                       category:
-                      data['category'] != null ? data['category'] : '',
+                          data['category'] != null ? data['category'] : '',
                       day: data['day'] != null ? data['day'] : '',
                       calories: data['calories'] != null ? data['calories'] : 0,
                     );
@@ -196,7 +196,7 @@ class NutritionChart extends StatelessWidget {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         gradient:
-                                        gradients[index % gradients.length],
+                                            gradients[index % gradients.length],
                                         borderRadius: BorderRadius.only(
                                           topRight: Radius.circular(40),
                                         ),
@@ -205,7 +205,7 @@ class NutritionChart extends StatelessWidget {
                                         padding: const EdgeInsets.all(16.0),
                                         child: Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               item.foodTime,
@@ -218,7 +218,7 @@ class NutritionChart extends StatelessWidget {
                                             SizedBox(height: 20),
                                             Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                                  CrossAxisAlignment.start,
                                               children: foodWidgets,
                                             ),
                                             SizedBox(height: 20),
@@ -230,11 +230,11 @@ class NutritionChart extends StatelessWidget {
                                                       color: Colors.white,
                                                       fontSize: 30,
                                                       fontWeight:
-                                                      FontWeight.bold,
+                                                          FontWeight.bold,
                                                       fontFamily:
-                                                      'RobotoMono' // Set your desired color
-                                                    //...
-                                                  ),
+                                                          'RobotoMono' // Set your desired color
+                                                      //...
+                                                      ),
                                                 ),
                                                 Text(
                                                   ' kcal',
@@ -272,7 +272,7 @@ class NutritionChart extends StatelessWidget {
                                 children: [
                                   Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Fat foods',
@@ -290,7 +290,7 @@ class NutritionChart extends StatelessWidget {
                                   ),
                                   Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Protein foods',
@@ -300,7 +300,7 @@ class NutritionChart extends StatelessWidget {
                                         ),
                                       ),
                                       Image.asset(
-                                        'assets/images/protein.jpeg',
+                                        'assets/images/protein.jpg',
                                         width: 150,
                                         height: 200,
                                       ),

@@ -33,7 +33,7 @@ class _ReviewState extends State<Review> {
 
     try {
       final reviewsCollection =
-      FirebaseFirestore.instance.collection('gymReviews');
+          FirebaseFirestore.instance.collection('gymReviews');
 
       // Retrieve the username from the user collection
       final userDoc = FirebaseFirestore.instance
@@ -116,12 +116,12 @@ class _ReviewState extends State<Review> {
             decoration: InputDecoration(
               enabledBorder: UnderlineInputBorder(
                 borderSide:
-                BorderSide(width: 3, color: Colors.white70), //<-- SEE HERE
+                    BorderSide(width: 3, color: Colors.white70), //<-- SEE HERE
               ),
               labelText: 'Write your reviews here',
               contentPadding: EdgeInsets.only(left: 130),
               labelStyle:
-              TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                  TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
 
               // alignLabelWithHint: true,
             ),
@@ -162,4 +162,3 @@ class _ReviewState extends State<Review> {
     );
   }
 }
-

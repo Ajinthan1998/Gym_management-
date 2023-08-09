@@ -49,7 +49,8 @@ class _CoachSalaryState extends State<CoachSalary> {
 
     // Filter data based on the showPastSalaries flag
     if (!showPastSalaries) {
-      details = details.where((detail) => detail.monthYear == currentMonth).toList();
+      details =
+          details.where((detail) => detail.monthYear == currentMonth).toList();
     }
     details.sort((a, b) => b.monthYear.compareTo(a.monthYear));
     return details;
@@ -89,7 +90,8 @@ class _CoachSalaryState extends State<CoachSalary> {
                     padding: const EdgeInsets.all(16.0),
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -118,22 +120,33 @@ class _CoachSalaryState extends State<CoachSalary> {
                             children: [
                               Text(
                                 detail.monthYear,
-                                style: TextStyle(height: 2, color: Colors.black,fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    height: 2,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 detail.Salary,
-                                style: TextStyle(height: 2, color: Colors.black,fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    height: 2,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 detail.workingTime,
-                                style: TextStyle(height: 2, color: Colors.black,fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    height: 2,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 'Salary Status : ${detail.paymentStatus}',
                                 style: TextStyle(
                                   height: 2,
                                   fontWeight: FontWeight.bold,
-                                  color: detail.paymentStatus == 'Settled' ? Colors.green : Colors.red,
+                                  color: detail.paymentStatus == 'Settled'
+                                      ? Colors.green
+                                      : Colors.red,
                                 ),
                               ),
                               SizedBox(
@@ -161,9 +174,13 @@ class _CoachSalaryState extends State<CoachSalary> {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-
-                  showPastSalaries ? 'Hide Past Salaries' : 'View Last Months Salaries',
-                  style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 17),
+                  showPastSalaries
+                      ? 'Hide Past Salaries'
+                      : 'View Last Months Salaries',
+                  style: TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17),
                 ),
               ),
             ),

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sample_app/screens/cookie/bottom_bar.dart';
 import 'package:sample_app/screens/member/workout_page.dart';
 
+import '../../utils/sharedPrefencesUtil.dart';
+import 'workoutHistory.dart';
+
 class CWorkout extends StatefulWidget {
   const CWorkout({Key? key}) : super(key: key);
 
@@ -12,7 +15,7 @@ class CWorkout extends StatefulWidget {
 class _CWorkoutState extends State<CWorkout>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
+  late String uid;
   @override
   void initState() {
     super.initState();
@@ -60,6 +63,16 @@ class _CWorkoutState extends State<CWorkout>
             SizedBox(
               height: 15.0,
             ),
+            ElevatedButton(
+              onPressed: () async {
+                String uid = await SharedPreferencesUtil.getUser() ?? '';
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => WorkoutHistoryPage(uid: uid)));
+              },
+              child: const Text('workout history'),
+            ),
             Text(
               'Categories',
               style: TextStyle(
@@ -99,12 +112,12 @@ class _CWorkoutState extends State<CWorkout>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  Workouts(category: "abs"),
-                  Workouts(category: "chest"),
-                  Workouts(category: "shoulder"),
+                  Workouts(category: "abs", uid: ""),
+                  Workouts(category: "chest", uid: ""),
+                  Workouts(category: "shoulder", uid: ""),
                 ],
               ),
-            )
+            ),
           ],
         ),
         // floatingActionButton: FloatingActionButton(

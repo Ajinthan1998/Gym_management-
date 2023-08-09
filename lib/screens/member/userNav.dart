@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _screens = [
     HomeScreen(),
     CWorkout(),
-    AddWorkout(),
+    AddOwnWorkouts(),
     ChartScreen(),
     ProfileScreen()
   ];
@@ -79,7 +79,7 @@ class _HomeState extends State<Home> {
             color: Colors.black,
             child: Padding(
               padding:
-              const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
               child: GNav(
                 backgroundColor: Colors.white12,
                 color: Colors.white,

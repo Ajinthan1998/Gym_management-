@@ -36,11 +36,11 @@ class _BMICalculatorState extends State<BMICalculator> {
 
     if (uid != null) {
       DocumentReference userDocRef =
-      FirebaseFirestore.instance.collection('users').doc(uid);
+          FirebaseFirestore.instance.collection('users').doc(uid);
       userDocRef.get().then((DocumentSnapshot documentSnapshot) {
         if (mounted) {
           Map<String, dynamic>? userData =
-          documentSnapshot.data() as Map<String, dynamic>?;
+              documentSnapshot.data() as Map<String, dynamic>?;
           setState(() {
             email = userData!['email'];
             address = userData['address'];
@@ -62,7 +62,7 @@ class _BMICalculatorState extends State<BMICalculator> {
               children: [
                 Padding(
                   padding:
-                  EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
+                      EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
                   child: Container(
                     height: 300,
                     decoration: BoxDecoration(color: Colors.white12),
@@ -168,7 +168,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                     color: Color(0xf2ffffff),
                   ),
                   padding:
-                  EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
+                      EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
                   width: double.infinity,
                   // height: 800,
                   child: Column(
@@ -214,7 +214,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                                     color: Colors.black,
                                   ),
                                   contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 60),
+                                      EdgeInsets.symmetric(horizontal: 60),
                                 ),
                                 style: TextStyle(
                                   fontSize: 20,
@@ -258,7 +258,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                           children: [
                             Container(
                               width:
-                              300, // Set the desired width for the TextField
+                                  300, // Set the desired width for the TextField
                               child: TextField(
                                 controller: _weightController,
                                 textAlign: TextAlign.center,
@@ -276,7 +276,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                                     color: Colors.black,
                                   ),
                                   contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 60),
+                                      EdgeInsets.symmetric(horizontal: 60),
                                 ),
                                 style: TextStyle(
                                   fontSize: 20,
@@ -336,10 +336,10 @@ class _BMICalculatorState extends State<BMICalculator> {
                           }
                         });
                         CollectionReference usersCollection =
-                        FirebaseFirestore.instance.collection('users');
+                            FirebaseFirestore.instance.collection('users');
                         DocumentReference userDoc = usersCollection.doc(uid);
                         DocumentReference bmiDoc =
-                        userDoc.collection('bmi').doc(curdate);
+                            userDoc.collection('bmi').doc(curdate);
                         bmiDoc.set({
                           'value': bmi,
                           'time': DateTime.now(),

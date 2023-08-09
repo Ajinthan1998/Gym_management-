@@ -6,19 +6,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:sample_app/screens/signin.dart';
-import '../reusable_widgets/reusable_widgets.dart';
-import '../utils/colors.dart';
-import 'member/userNav.dart';
 
-class Signup extends StatefulWidget {
-  const Signup({Key? key}) : super(key: key);
+import '../../reusable_widgets/reusable_widgets.dart';
+import '../signin.dart';
+
+class AddNewUser extends StatefulWidget {
+  const AddNewUser({Key? key}) : super(key: key);
 
   @override
-  _SignupState createState() => _SignupState();
+  State<AddNewUser> createState() => _AddNewUserState();
 }
 
-class _SignupState extends State<Signup> {
+class _AddNewUserState extends State<AddNewUser> {
   TextEditingController _userNameTextController = TextEditingController();
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _confirmPasswordTextController =
@@ -106,7 +105,7 @@ class _SignupState extends State<Signup> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
-          "Create new member",
+          "Create new user",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
@@ -204,24 +203,6 @@ class _SignupState extends State<Signup> {
                   _phoneNumberTextController,
                 ),
                 const SizedBox(height: 20),
-                // reusableTextField(
-                //   "Enter role",
-                //   Icons.person_rounded,
-                //   false,
-                //   _roleTextController,
-                // ),
-
-                // DropdownButton(
-                //   disabledHint: Text('user'),
-                //   value: selectedValue,
-                //   items: dropdownItems,
-                //   icon: Icon(Icons.flag),
-                //   onChanged: (String? value) {
-                //     setState(() {
-                //       selectedValue = value!;
-                //     });
-                //   },
-                // ),
                 DropdownButtonFormField(
                     style: TextStyle(color: Colors.white.withOpacity(0.9)),
                     decoration: InputDecoration(
@@ -323,7 +304,6 @@ class _SignupState extends State<Signup> {
                     String? username = _userNameTextController.text;
                     String address = _addressTextController.text;
                     String phone_no = _phoneNumberTextController.text;
-                    String role = _roleTextController.text;
                     String dob = _dobTextController.text;
 
                     //Save the user data to the firestore db

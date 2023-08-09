@@ -8,11 +8,10 @@ import 'package:provider/provider.dart';
 
 import 'workout_detail.dart';
 
-class Workouts extends StatelessWidget {
+class OwnWorkouts extends StatelessWidget {
   final category;
-  final uid;
 
-  Workouts({this.category, this.uid});
+  OwnWorkouts({this.category});
 
   bool isChecked = false;
 
@@ -150,8 +149,13 @@ class Workouts extends StatelessWidget {
   Future<List<Map<String, dynamic>>> _loadMedia() async {
     List<Map<String, dynamic>> mediaFiles = [];
 
-    final QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('workouts').get();
+    String uid = await SharedPreferencesUtil.getUser() ?? '';
+
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('ownWorkout')
+        .get();
 
     for (final DocumentSnapshot doc in snapshot.docs) {
       final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;

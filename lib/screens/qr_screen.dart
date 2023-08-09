@@ -29,21 +29,6 @@ class _QRScreenState extends State<QRScreen> {
   String? uid;
   String _data = "";
 
-  // Future<void> getUserData() async {
-  //   final authService = AuthService();
-  //   uid = await authService.getCurrentUserUid();
-  //
-  //   if (uid != null) {
-  //     final userData = await authService.getUserData(uid!);
-  //     if (userData != null) {
-  //       setState(() {
-  //         email = userData['email'];
-  //         address = userData['address'];
-  //       });
-  //     }
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     final GlobalKey globalKey = GlobalKey();
@@ -55,27 +40,32 @@ class _QRScreenState extends State<QRScreen> {
     if (uid != null) {
       DocumentReference userDocRef =
           FirebaseFirestore.instance.collection('users').doc(uid);
-
       userDocRef.get().then((DocumentSnapshot documentSnapshot) {
-        // Map<String, dynamic> userData = documentSnapshot.data!.data()
-        Map<String, dynamic>? userData =
-            documentSnapshot.data() as Map<String, dynamic>?;
-        setState(() {
-          email = userData!['email'];
-          address = userData['address'];
-        });
+        if (mounted) {
+          Map<String, dynamic>? userData =
+              documentSnapshot.data() as Map<String, dynamic>?;
+          setState(() {
+            email = userData!['email'];
+            address = userData['address'];
+          });
+        }
       });
     }
     return Scaffold(
       // extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(email ?? ""),
+        backgroundColor: Colors.black,
       ),
+
       body: Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+            ),
             child: Text("Logout"),
             onPressed: () {
               FirebaseAuth.instance.signOut().then((value) {
@@ -94,27 +84,6 @@ class _QRScreenState extends State<QRScreen> {
           Text(email ?? ""),
           Text(address ?? ""),
           Text(uid ?? ""),
-          ElevatedButton(
-            child: const Text('Open Qr'),
-            // Within the `FirstRoute` widget
-            onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const ProgressChart()),
-              // );
-            },
-          ),
-
-          ElevatedButton(
-            child: const Text('Open scanner'),
-            // Within the `FirstRoute` widget
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const QRScan()),
-              );
-            },
-          ),
 
           //QR generator
           RepaintBoundary(
@@ -128,9 +97,10 @@ class _QRScreenState extends State<QRScreen> {
           SizedBox(height: 20.0),
           Text('Data: $uid'),
           FloatingActionButton(
+            backgroundColor: Colors.black,
             onPressed: () {
               Navigator.of(context)
-                  .pop(MaterialPageRoute(builder: (context) => Home()));
+                  .push(MaterialPageRoute(builder: (context) => Home()));
             },
             child: Icon(Icons.navigate_before),
           ),
