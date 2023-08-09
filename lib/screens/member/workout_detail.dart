@@ -11,7 +11,7 @@ class WorkoutDetail extends StatelessWidget {
         SizedBox(height: 15.0),
         Padding(
           padding: EdgeInsets.only(left: 20.0),
-          child: Text('Cookie',
+          child: Text('Workout',
               style: TextStyle(
                   fontFamily: 'Varela',
                   fontSize: 42.0,

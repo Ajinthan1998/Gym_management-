@@ -13,7 +13,8 @@ Image logoWidget(String imageName) {
 }
 
 TextField reusableTextField(String text, IconData icon, bool isPasswordType,
-    TextEditingController controller,{Widget? suffixIcon}) {
+    TextEditingController controller,
+    {Widget? suffixIcon}) {
   return TextField(
     controller: controller,
     obscureText: isPasswordType,
@@ -26,18 +27,16 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
         icon,
         color: Colors.white70,
       ),
-
       labelText: text,
       labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
       filled: true,
       floatingLabelBehavior: FloatingLabelBehavior.never,
-      fillColor: Colors.white.withOpacity(0.3),
+      fillColor: Colors.white12.withOpacity(0.1),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
       suffixIcon: suffixIcon,
     ),
-
     keyboardType: isPasswordType
         ? TextInputType.visiblePassword
         : TextInputType.emailAddress,
@@ -58,14 +57,14 @@ Container signInSignUpButton(
       child: Text(
         isLogin ? 'LOG IN' : 'SIGN UP',
         style: const TextStyle(
-            color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16),
+            color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 16),
       ),
       style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.pressed)) {
               return Colors.black26;
             }
-            return Colors.white;
+            return Color(0xff9b1616);
           }),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)))),
@@ -106,11 +105,11 @@ class UserDataFetcher {
 
     if (uid != null) {
       DocumentReference userDocRef =
-          FirebaseFirestore.instance.collection('users').doc(uid);
+      FirebaseFirestore.instance.collection('users').doc(uid);
 
       userDocRef.get().then((DocumentSnapshot documentSnapshot) {
         Map<String, dynamic>? userData =
-            documentSnapshot.data() as Map<String, dynamic>?;
+        documentSnapshot.data() as Map<String, dynamic>?;
 
         setStateCallback(userData?['email'], userData?['address']);
       });

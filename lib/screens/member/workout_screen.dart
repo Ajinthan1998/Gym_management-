@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/imageTile.dart';
 import '../../utils/workout_type.dart';
-import '../cookie/cookie_page.dart';
+import 'workout_page.dart';
 
 class WorkoutScreen extends StatefulWidget {
   const WorkoutScreen({Key? key}) : super(key: key);

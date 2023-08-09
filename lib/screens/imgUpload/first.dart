@@ -23,7 +23,7 @@ class ImgUp extends StatefulWidget {
 class _ImgUpState extends State<ImgUp> {
   FirebaseStorage storage = FirebaseStorage.instance;
   CollectionReference imageCollection =
-      FirebaseFirestore.instance.collection('images');
+      FirebaseFirestore.instance.collection('packages');
   late String url;
 
   Future<List<Map<String, dynamic>>> _loadMedia() async {

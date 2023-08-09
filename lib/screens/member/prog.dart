@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sample_app/screens/member/BMICalculator.dart';
 
 class ChartScreen extends StatelessWidget {
   // final String userId;
@@ -89,6 +90,16 @@ class ChartScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white24,
+                ),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => BMICalculator()));
+                },
+                child: const Text('Calculate BMI'),
               ),
             ],
           );

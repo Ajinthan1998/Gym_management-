@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sample_app/screens/cookie/bottom_bar.dart';
-import 'package:sample_app/screens/cookie/cookie_page.dart';
+import 'package:sample_app/screens/member/workout_page.dart';
 
 class CHome extends StatefulWidget {
   const CHome({Key? key}) : super(key: key);

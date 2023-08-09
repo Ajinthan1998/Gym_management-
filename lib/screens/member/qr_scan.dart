@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +13,12 @@ class QRScan extends StatefulWidget{
   @override
   State<QRScan> createState() => _QRScanState();
 }
+class CoachInfo {
+  final String name;
+  final String imagePath;
 
+  CoachInfo(this.name, this.imagePath);
+}
 class _QRScanState extends State<QRScan>{
   String role="";
   String currentDate = DateTime.now().toString().split(' ')[0];
@@ -21,6 +27,44 @@ class _QRScanState extends State<QRScan>{
   QRViewController? controller;
   String result ="";
 
+  Map<String, int> extractTimeComponents(String timeString) {
+    List<String> timeParts = timeString.split(':');
+
+    return {
+      'hour': int.parse(timeParts[0]),
+      'minute': int.parse(timeParts[1]),
+    };
+  }
+
+  Duration calculateWorkingHours(List<Map<String, dynamic>> attendanceData) {
+    Duration totalWorkingHours = Duration.zero;
+
+    for (var entry in attendanceData) {
+      if (entry['intime'] != null && entry['outtime'] != null) {
+        Map<String, int> intimeComponents = extractTimeComponents(entry['intime']);
+        Map<String, int> outtimeComponents = extractTimeComponents(entry['outtime']);
+
+        DateTime intime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          intimeComponents['hour']!,
+          intimeComponents['minute']!,
+        );
+
+        DateTime outtime = DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          outtimeComponents['hour']!,
+          outtimeComponents['minute']!,
+        );
+        totalWorkingHours += outtime.difference(intime);
+      }
+    }
+
+    return totalWorkingHours;
+  }
 
   Future<int> getCurrentAttendanceCount(String role) async {
     QuerySnapshot usersSnapshot = await FirebaseFirestore.instance
@@ -35,40 +79,40 @@ class _QRScanState extends State<QRScan>{
           .collection('users')
           .doc(userDoc.id)
           .collection('attendance')
-          .where('date', isEqualTo: currentDate)
+          .where('date', isEqualTo: currentDate.toString())
           .where('availability',isEqualTo: "Yes")
           .get();
       totalCount += attendanceSnapshot.docs.length;
-
     }
     return totalCount;
   }
 
-  Future<List<String>> getCurrentAvailableCoach() async {
+  Future<List<String>> getCurrentAvailableCoachIds() async {
     QuerySnapshot usersSnapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('role', isEqualTo: "coach")
         .get();
 
-    List<String> usernames = [];
+    List<String> coachIds = [];
 
     for (QueryDocumentSnapshot userDoc in usersSnapshot.docs) {
       QuerySnapshot attendanceSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userDoc.id)
           .collection('attendance')
-          .where('date', isEqualTo: currentDate)
+          .where('date', isEqualTo: currentDate.toString())
           .where('availability', isEqualTo: "Yes")
           .get();
 
       if (attendanceSnapshot.docs.isNotEmpty) {
-        String username = userDoc.get('username');
-        usernames.add(username);
+        String userId = userDoc.id; // Fetch the user ID of available coach
+        coachIds.add(userId);
       }
     }
 
-    return usernames;
+    return coachIds;
   }
+
 
   @override
   void dispose(){
@@ -125,33 +169,32 @@ class _QRScanState extends State<QRScan>{
       DocumentReference userDoc = usersCollection.doc(result);
       userDoc.get().then((userSnapshot) async {
        role =userSnapshot.get('role');
+
        print('Role name :$role');
-        // Retrieve the current value of inTime
+
         DocumentReference attendanceDoc = userDoc.collection('attendance').doc(currentDate);
-        String fieldToUpdate = attendanceType == 'In' ? 'intime' : 'outtime';
+        //String fieldToUpdate = attendanceType == 'In' ? 'intime' : 'outtime';
 
-        // attendanceDoc.update({
-        //   fieldToUpdate: DateTime.now()
-        // });
 
-        if (attendanceType == 'In') {
-          await attendanceDoc.set({
-            'intime': currentTime,
-            'availability': "Yes",
-            'date'  : currentDate,
-          }, SetOptions(merge: true)).then((_){
-            print('Attendance document created/updated successfully');
-          }).catchError((error) {
-            print('Failed to create/update attendance document: $error');
-          });
-        } else {
-          await attendanceDoc.set({
-            'outtime': currentTime,
-            'availability':"No"
-          }, SetOptions(merge: true)).then((_){
-            print('Failed to create/update attendance document');
-          });
-        }
+
+        // if (attendanceType == 'In') {
+        //   await attendanceDoc.set({
+        //     'intime': currentTime,
+        //     'availability': "Yes",
+        //     'date'  : currentDate,
+        //   }, SetOptions(merge: true)).then((_){
+        //     print('Attendance document created/updated successfully');
+        //   }).catchError((error) {
+        //     print('Failed to create/update attendance document: $error');
+        //   });
+        // } else {
+        //   await attendanceDoc.set({
+        //     'outtime': currentTime,
+        //     'availability':"No"
+        //   }, SetOptions(merge: true)).then((_){
+        //     print('Failed to create/update attendance document');
+        //   });
+        // }
 
         // int updatedAttendanceCount =await getCurrentAttendanceCount() ;
         // print('Current Attendance Count: $updatedAttendanceCount');
@@ -166,10 +209,215 @@ class _QRScanState extends State<QRScan>{
         // }).onError((error, stackTrace) {
         //   print("Error ${error.toString()}");
         // });
-        final DatabaseReference attendanceCountRef =
+
+       // if (role == 'coach') {
+       //   DocumentSnapshot attendanceSnapshot = await attendanceDoc.get();
+       //   List<Map<String, dynamic>> attendanceData = [];
+       //   if (attendanceSnapshot.exists) {
+       //     Map<String, dynamic>? data = attendanceSnapshot.data() as Map<String, dynamic>?;
+       //
+       //     if (data != null && data['attendance_data'] is List) {
+       //       List<dynamic> dataList = data['attendance_data'] as List<dynamic>;
+       //       attendanceData = dataList.map((item) => Map<String, dynamic>.from(item as Map<String, dynamic>)).toList();
+       //     }
+       //   }
+       //
+       //   bool isCheckedIn = false;
+       //   if (attendanceData.isNotEmpty) {
+       //     Map<String, dynamic> lastEntry = attendanceData.last;
+       //       isCheckedIn =
+       //           lastEntry['intime'] != null && lastEntry['outtime'] == null;
+       //     }
+       //
+       //
+       //   DateTime currentTimeDateTime = DateTime.now();
+       //
+       //   if (isCheckedIn) {
+       //     // The coach is already checked in, so check if the next 'intime' is greater than the previous 'outtime'
+       //     if (attendanceData.length < 2 || attendanceData.last['outtime'] == null || currentTimeDateTime.isAfter(DateTime.parse(attendanceData.last['outtime']))) {
+       //       // The next 'intime' value is valid, so add the 'outtime' value when the "out button" is pressed
+       //       if (attendanceType == 'Out') {
+       //         attendanceData.last['outtime'] = currentTime;
+       //       }
+       //     } else {
+       //       // The next 'intime' value is not valid as it is before the previous 'outtime'
+       //       // You may show an error message or handle this scenario accordingly.
+       //     }
+       //   } else {
+       //     // The coach is not checked in, so add a new entry with 'intime' when the "in button" is pressed
+       //
+       //     attendanceData.add({
+       //       'intime': currentTime,
+       //       'outtime': null, // Use null for initial 'outtime' value
+       //       'date': currentDate,
+       //       'availability': "Yes",
+       //     });
+       //   }
+       //
+       //
+       //   // Update the 'attendance_data' field in Firestore
+       //   await attendanceDoc.set({
+       //     'attendance_data': attendanceData,
+       //   }, SetOptions(merge: true)).then((_) {
+       //     print('Attendance document created/updated successfully');
+       //   }).catchError((error) {
+       //     print('Failed to create/update attendance document: $error');
+       //   });
+       // }
+       if (role == 'coach') {
+         DocumentSnapshot attendanceSnapshot = await attendanceDoc.get();
+         List<Map<String, dynamic>> attendanceData = [];
+         if (attendanceSnapshot.exists) {
+           Map<String, dynamic>? data = attendanceSnapshot.data() as Map<String, dynamic>?;
+
+           if (data != null && data['attendance_data'] is List) {
+             List<dynamic> dataList = data['attendance_data'] as List<dynamic>;
+             attendanceData = dataList.map((item) => Map<String, dynamic>.from(item as Map<String, dynamic>)).toList();
+           }
+         }
+
+         bool isCheckedIn = false;
+         if (attendanceData.isNotEmpty) {
+           Map<String, dynamic> lastEntry = attendanceData.last;
+             isCheckedIn = lastEntry['intime'] != null && lastEntry['outtime'] == null;
+
+         }
+
+         DateTime currentTimeDateTime = DateTime.now();
+
+         if (isCheckedIn) {
+           // The coach is already checked in, so check if the next 'intime' is greater than the previous 'outtime'
+           if (attendanceData.length < 2 || attendanceData.last['outtime'] == null || currentTimeDateTime.isAfter(DateTime.parse(attendanceData.last['outtime']))) {
+             // The next 'intime' value is valid, so add the 'outtime' value when the "out button" is pressed
+             if (attendanceType == 'Out') {
+               attendanceData.last['outtime'] = currentTime;
+             }
+           } else {
+             // The next 'intime' value is not valid as it is before the previous 'outtime'
+             // You may show an error message or handle this scenario accordingly.
+           }
+         } else {
+           // The coach is not checked in, so add a new entry with 'intime' when the "in button" is pressed
+           if (attendanceType == 'In') {
+             attendanceData.add({
+               'intime': currentTime,
+               'outtime': null, // Use null for initial 'outtime' value
+             });
+           }
+         }
+
+         // Calculate overall 'availability' status based on the last entry
+         bool isAvailable = attendanceData.isNotEmpty && attendanceData.last['outtime'] == null;
+
+         String? currentUserUID = FirebaseAuth.instance.currentUser?.uid; // Replace with your method to get the current coach's ID
+
+         // Retrieve the current coach's name from the userCollection using their ID
+         DocumentSnapshot coachSnapshot = await FirebaseFirestore.instance
+             .collection('users')
+             .doc(currentUserUID)
+             .get();
+
+         if (coachSnapshot.exists) {
+           String currentCoachName = coachSnapshot['coachName'] as String;
+
+           // Get the count of users trained by the coach on the current day
+           QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+               .collection('users')
+               .where('coachName', isEqualTo: currentCoachName) // Replace with the actual field name for coach's name
+               .get();
+
+           int trainedUsersCount = userSnapshot.docs.length;
+           List<String> trainedUsernames = userSnapshot.docs
+               .map((doc) => doc['username'] as String)
+               .toList();
+
+           await attendanceDoc.set({
+             'date': currentDate,
+             'availability': isAvailable ? "Yes" : "No",
+             'attendance_data': attendanceData,
+             'trainedUsersCount': trainedUsersCount,
+             'trainedUsernames': trainedUsernames,
+           }, SetOptions(merge: true)).then((_) {
+             print('Attendance document created/updated successfully');
+           }).catchError((error) {
+             print('Failed to create/update attendance document: $error');
+           });
+
+         Duration totalWorkingHours = calculateWorkingHours(attendanceData);
+         int hours = totalWorkingHours.inHours;
+         int minutes = totalWorkingHours.inMinutes % 60;
+         print('Total Working Hours: $hours:${minutes.toString().padLeft(2, '0')}');
+
+         // Duration totalWorkingHoursPerDay = calculateWorkingHours(attendanceData);
+
+         // Update the 'totalWorkingHours' field in Firestore
+         await attendanceDoc.set({
+           'totalWorkingHours':'$hours:${minutes.toString().padLeft(2, '0')}', // Store the total minutes
+         }, SetOptions(merge: true)).then((_) {
+           print('Total working hours updated successfully');
+         }).catchError((error) {
+           print('Failed to update total working hours: $error');
+         });
+       }
+       }
+       else if (role == 'user') {
+         DocumentSnapshot attendanceSnapshot = await attendanceDoc.get();
+         Map<String, dynamic>? attendanceData = attendanceSnapshot.data() as Map<String, dynamic>?;
+
+         if (attendanceData != null) {
+           // Check if 'intime' is already set, and only set it if it's not already present
+           if (attendanceData['intime'] == null) {
+             if (attendanceType == 'In') {
+               await attendanceDoc.set({
+                 'intime': currentTime,
+                 'availability': "Yes",
+                 'date': currentDate,
+               }, SetOptions(merge: true)).then((_) {
+                 print('Attendance document created/updated successfully');
+               }).catchError((error) {
+                 print('Failed to create/update attendance document: $error');
+               });
+             }
+           } else {
+             // Check if 'outtime' is already set, and only set it if it's not already present and 'intime' < 'outtime'
+             if (attendanceData['outtime'] == null) {
+               if (attendanceType == 'Out') {
+                 await attendanceDoc.set({
+                   'outtime': currentTime,
+                   'availability': "No",
+                 }, SetOptions(merge: true)).then((_) {
+                   print('Attendance document created/updated successfully');
+                 }).catchError((error) {
+                   print('Failed to create/update attendance document: $error');
+                 });
+               } else {
+                 // Show an error message or handle the scenario where 'outtime' should be after 'intime'
+               }
+             } else {
+               // 'outtime' is already set, so no further action needed
+             }
+           }
+         } else {
+           // If the attendance document doesn't exist, set 'intime' for the first time
+           if (attendanceType == 'In') {
+             await attendanceDoc.set({
+               'intime': currentTime,
+               'availability': "Yes",
+               'date': currentDate,
+             }, SetOptions(merge: true)).then((_) {
+               print('Attendance document created/updated successfully');
+             }).catchError((error) {
+               print('Failed to create/update attendance document: $error');
+             });
+           }
+         }
+
+
+       }
+
+
+       final DatabaseReference attendanceCountRef =
         FirebaseDatabase.instance.reference().child('attendanceCount');
-
-
 
        int updatedAttendanceCount=0;
 
@@ -195,74 +443,29 @@ class _QRScanState extends State<QRScan>{
         });
 
 
+
        final DatabaseReference availableCoachRef = FirebaseDatabase.instance.reference().child('availableCoach');
-       List<String> coachname= await getCurrentAvailableCoach();
-       print('Name : $coachname');
-       availableCoachRef.set(coachname)
+       List<String> coachIds = await getCurrentAvailableCoachIds();
+       print('Names: $coachIds');
+       //
+       // List<Map<String, String>> serializedCoaches = coachIds.map((coachId) {
+       //   return {'uid': coachId};
+       // }).toList();
+
+
+       availableCoachRef
+           .set(coachIds)
            .then((_) {
-         print('Updated Attendance Count in Realtime Database');
+         print('Updated available coaches in Realtime Database');
        })
            .catchError((error) {
-         print('Failed to update Attendance Count: $error');
+         print('Failed to update available coaches: $error');
        });
-        // attendanceDoc.set({
-        //   fieldToUpdate:DateTime.now(),
-        //   'date'  : currentDate,
-        //
-        // }, SetOptions(merge: true)).then((_) {
-        //   print('Attendance document created/updated successfully');
-        // }).catchError((error) {
-        //   print('Failed to create/update attendance document: $error');
-        // });
-        // if (userSnapshot.exists) {
-        //   Map<String, dynamic>? attendanceData = userSnapshot.get('attendance') as Map<String, dynamic>?;
-        //   int currentAttendanceCount = attendanceData != null ? attendanceData['attendanceCount'] as int? ?? 0
-        //       : 0;
-        // Create a new attendance document
-        // if (userSnapshot.exists) {
-        //   // Retrieve the current value of inTime
-        //   Map<String, dynamic>? attendanceData = userSnapshot.get('attendance') as Map<String, dynamic>?;
-        //   DateTime? inTime = attendanceData != null ? attendanceData['inTime'] : null;
-        //   //DocumentReference dateDoc = attendanceDoc.collection('date').doc();
-        //
-        // // Set attendance data++
-        // attendanceDoc.set({
-        //
-        //   'inTime': attendanceType == "In" ? DateTime.now() : inTime,
-        //   'outTime': attendanceType == "Out" ? DateTime.now() : 'outTime'
-        // }).then((_) {
-        //   print("Attendance registered");
-        // });
-        //   }
-
-
-        // Determine the field to update based on the button label
-
-        // Store the current time in the corresponding field in Firebase
-
-
-        //int currentAttendanceCount = attendanceDoc != null ? attendanceDoc['attendanceCount'] as int? ?? 0 : 0;
-        // Add or subtract attendance count
-
-        // Update the attendance count in the user document
-        // usersCollection
-        //
-        //     .set({'email': email, 'address': address}).then((_) {
-        //   print("Created New account");
-        //   Navigator.push(context,
-        //       MaterialPageRoute(builder: (context) => Home()));
-        // }).onError((error, stackTrace) {
-        //   print("Error ${error.toString()}");
-        // });
-        // attendanceReg.update({
-        //     'attendance.attendanceCount': updatedAttendanceCount,
-        //   }).then((_) {
-        //     print("Attendance registered");
-        //   });
-        // }
-      });
-    }
+    });
   }
+
+      }
+
 
       // int count=0;
       // attendanceCollection.doc(count.toString());

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'cookie_detail.dart';
+import 'workout_detail.dart';
 
 class Workouts extends StatelessWidget {
   final category;

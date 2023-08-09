@@ -1,97 +1,141 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+
 class PackageDetailsPage extends StatelessWidget {
-   final String packageId;
-   final String duration;
 
+  Future<List<Map<String, dynamic>>> _loadMedia() async {
+    List<Map<String, dynamic>> mediaFiles = [];
 
-  const PackageDetailsPage({
-    required this.packageId,
-    required this.duration,
+    final QuerySnapshot snapshot =
+    await FirebaseFirestore.instance.collection('packages').get();
 
-    // Add any other necessary parameters
-  });
+    for (final DocumentSnapshot doc in snapshot.docs) {
+      final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-
-  Future<void> addPackageToFirestore(
-      String packageId,
-      String duration,
-
-      ) async {
-    final CollectionReference packagesRef =
-    FirebaseFirestore.instance.collection('packages');
-    final DocumentSnapshot packageDoc = await packagesRef.doc(packageId).get();
-
-    if (packageDoc.exists) {
-      // Package already exists, perform desired actions
-      // For example, show a message that the package is already added
-      print('Package already added.');
-    } else {
-      // Package does not exist, add it to Firestore
-      await packagesRef.doc(packageId).set({
-        'duration': duration,
-
-        // Add any other necessary fields
+      mediaFiles.add({
+        "url": data['url'] ?? '',
+        "packageName": data['packageName'] ?? '',
+        "description": data['description'] ?? '',
+        "price": data['price'] ?? '',
+        "duration": data['duration'] ?? '',
       });
-      // Perform any additional actions upon successful addition
-      // For example, show a success message
-      print('Package added successfully!');
+    }
+
+    return mediaFiles;
+  }
+  Future<void> addPackageToFirestore(String packageName, String userUID) async {
+    final CollectionReference usersRef = FirebaseFirestore.instance.collection('users');
+
+    final DocumentSnapshot userDoc = await usersRef.doc(userUID).get();
+
+    if (userDoc.exists) {
+      final userData = userDoc.data() as Map<String, dynamic>;
+      if (userData['PackageName'] == null) {
+        await usersRef.doc(userUID).update({
+          'PackageName': packageName,
+        });
+        print('Package added successfully to the user document!');
+      } else {
+        print('Package already added for this user.');
+      }
+    } else {
+      print('User not found.');
+          }
+  }
+
+
+  String getCurrentUserUID() {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+
+    if (user != null) {
+      return user.uid;
+    } else {
+
+      return '';
     }
   }
 
-   Widget build(BuildContext context) {
-     return Scaffold(
-       appBar: AppBar(
-         title: Text('Package Details'),
-       ),
-       body: Column(
-         mainAxisAlignment: MainAxisAlignment.center,
-         children: [
-           Text(
-             'Package: $duration',
-             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-           ),
-           SizedBox(height: 20),
-           Image.asset(
-             'assets/images/package_image.jpg', // Replace with your package image asset path
-             height: 200,
-             width: 200,
-             fit: BoxFit.cover,
-           ),
-           SizedBox(height: 20),
-           Text(
-             'Price: \$99.99', // Replace with the actual price
-             style: TextStyle(fontSize: 18),
-           ),
-           SizedBox(height: 20),
-           Text(
-             'Workouts:',
-             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-           ),
-           SizedBox(height: 10),
-           Text(
-             'Workout 1',
-             style: TextStyle(fontSize: 16),
-           ),
-           Text(
-             'Workout 2',
-             style: TextStyle(fontSize: 16),
-           ),
-           Text(
-             'Workout 3',
-             style: TextStyle(fontSize: 16),
-           ),
-           ElevatedButton(
-             onPressed: () {
-               addPackageToFirestore(packageId, duration);
-             },
-             child: Text('Add to Firestore'),
-           ),
-         ],
-       ),
-     );
-   }
 
+
+  Widget build(BuildContext context) {
+    String currentUserUID = getCurrentUserUID();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Package Details'),
+        backgroundColor:Colors.white12,
+      ),
+
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Expanded(
+                child: FutureBuilder(
+                  future: _loadMedia(),
+                  builder: (context,
+                      AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return ListView.builder(
+                        itemCount: snapshot.data?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          final Map<String, dynamic> media = snapshot.data![index];
+
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 10),
+                              child: Column(
+                                children: [
+                                  Image.network(media['url']),
+                                  Container(
+                                  color: Colors.black54,
+                                    child: ListTile(
+                                      dense: false,
+                                      title: Text(media['packageName'],
+                                          style: TextStyle(color: Colors.white70)),
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Description: ${media['description']}'),
+                                          Text('Price: ${media['price']}'),
+                                          Text('Duration: ${media['duration']}'),
+                                        ],
+                                      ),
+
+                                    ),
+                                  ),
+
+
+                                  SizedBox(height: 10),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black,
+                                    ),
+                                    onPressed: () => addPackageToFirestore(media['packageName'],currentUserUID),
+                                    child: Text('Add Package'),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                        },
+                      );
+                    }
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
+                ),
+              ),
+            ],
+
+          ),
+
+
+      ),
+
+    );
+  }
 }

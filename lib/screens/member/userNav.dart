@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:sample_app/screens/cookie/CWorkout.dart';
+import 'package:sample_app/screens/member/CWorkout.dart';
+import 'package:sample_app/screens/member/prog.dart';
 
 import '../cookie/cHome.dart';
 import 'add_workout.dart';
@@ -24,9 +25,9 @@ class _HomeState extends State<Home> {
   //     TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _screens = [
     HomeScreen(),
-    WorkoutScreen(),
+    CWorkout(),
     AddWorkout(),
-    Progress(),
+    ChartScreen(),
     ProfileScreen()
   ];
 
@@ -40,7 +41,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(brightness: Brightness.dark),
+        theme: ThemeData(
+          brightness: Brightness.dark,
+          scaffoldBackgroundColor: Colors.black,
+        ),
         home: Scaffold(
           appBar: AppBar(
             leading: Image.asset(
@@ -48,7 +52,7 @@ class _HomeState extends State<Home> {
               width: 40, // Adjust the size as needed
             ),
             // title: Text("JK Fitness"),
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.white12,
             actions: [
               IconButton(
                   onPressed: () {
@@ -75,9 +79,9 @@ class _HomeState extends State<Home> {
             color: Colors.black,
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+              const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
               child: GNav(
-                backgroundColor: Colors.black,
+                backgroundColor: Colors.white12,
                 color: Colors.white,
                 activeColor: Colors.black,
                 tabBackgroundColor: Colors.white,
