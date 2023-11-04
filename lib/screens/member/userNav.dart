@@ -5,10 +5,9 @@ import 'package:sample_app/screens/member/CWorkout.dart';
 import 'package:sample_app/screens/member/prog.dart';
 
 import '../cookie/cHome.dart';
-import 'add_workout.dart';
+import 'addOwnWorkout.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
-import 'progress_screen.dart';
 import '../qr_screen.dart';
 import 'workout_screen.dart';
 

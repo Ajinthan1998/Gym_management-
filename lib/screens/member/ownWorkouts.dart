@@ -27,82 +27,6 @@ class OwnWorkouts extends StatelessWidget {
     return Colors.red;
   }
 
-  // Future<void> checkWorkouts(String uid, bool checked, String workout) async {
-  //   String tik;
-  //   String currentDate = DateTime.now().toString().split(' ')[0];
-  //   if (checked) {
-  //     tik = "checked";
-  //     try {
-  //       DocumentReference userRef =
-  //           FirebaseFirestore.instance.collection('users').doc(uid);
-  //       DocumentReference workoutHistoryRef =
-  //           userRef.collection('workout_history').doc(currentDate);
-  //
-  //       Map<String, dynamic> workoutData = {
-  //         'exercise': workout,
-  //         'date': currentDate,
-  //       };
-  //
-  //       await workoutHistoryRef.set({
-  //         'workouts': FieldValue.arrayUnion([workoutData]),
-  //       }, SetOptions(merge: true));
-  //
-  //       print('Workout added successfully!');
-  //     } catch (e) {
-  //       print('Error adding workout: $e');
-  //     }
-  //   } else {
-  //     tik = "not checked";
-  //   }
-  //   print(uid);
-  //   print(workout);
-  //   print(tik);
-  //   print(uid + currentDate);
-  //
-  // }
-
-  Future<void> checkWorkouts(String uid, bool checked, String workout) async {
-    String tik;
-    String currentDate = DateTime.now().toString().split(' ')[0];
-
-    if (checked) {
-      tik = "checked";
-      try {
-        DocumentReference userRef =
-            FirebaseFirestore.instance.collection('users').doc(uid);
-        CollectionReference workoutHistoryRef =
-            userRef.collection('workout_history');
-
-        DocumentSnapshot workoutHistorySnapshot =
-            await workoutHistoryRef.doc(currentDate).get();
-
-        if (workoutHistorySnapshot.exists) {
-          // If the document for the current date exists, update the exercises array
-          await workoutHistoryRef.doc(currentDate).update({
-            'exercises': FieldValue.arrayUnion([workout]),
-          });
-        } else {
-          // If the document for the current date doesn't exist, create a new document
-          await workoutHistoryRef.doc(currentDate).set({
-            'date': currentDate,
-            'exercises': [workout],
-          });
-        }
-
-        print('Workout added successfully!');
-      } catch (e) {
-        print('Error adding workout: $e');
-      }
-    } else {
-      tik = "not checked";
-    }
-
-    print(uid);
-    print(workout);
-    print(tik);
-    print(uid + currentDate);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,7 +36,7 @@ class OwnWorkouts extends StatelessWidget {
           SizedBox(height: 15.0),
           Container(
             padding: EdgeInsets.all(15.0),
-            width: MediaQuery.of(context).size.width - 80.0,
+            width: 200.0,
             height: MediaQuery.of(context).size.height - 50.0,
             child: FutureBuilder<List<Map<String, dynamic>>>(
               future: _loadMedia(),
@@ -128,7 +52,7 @@ class OwnWorkouts extends StatelessWidget {
                 } else {
                   final mediaFiles = snapshot.data ?? [];
                   return GridView.count(
-                    crossAxisCount: 1,
+                    crossAxisCount: 2,
                     primary: false,
                     crossAxisSpacing: 5.0,
                     mainAxisSpacing: 10.0,
@@ -193,7 +117,6 @@ class OwnWorkouts extends StatelessWidget {
         ));
       }
     }
-
     return cardList;
   }
 
@@ -230,43 +153,6 @@ class OwnWorkouts extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // isFavourite
-                    //     ? Icon(Icons.favorite, color: Color(0xFFEF7532))
-                    //     : Icon(Icons.favorite_outline, color: Color(0xFFEF7532))
-                    // Todo check box
-                    // Checkbox(
-                    //   checkColor: Colors.white,
-                    //   fillColor: MaterialStateProperty.resolveWith(getColor),
-                    //   value: isChecked,
-                    //   onChanged: (bool? value) {
-                    //     isChecked = value!;
-                    //   },
-                    // )
-
-                    ChangeNotifierProvider(
-                      create: (_) => CheckboxProvider(),
-                      child: Consumer<CheckboxProvider>(
-                        builder: (context, checkboxProvider, _) => Checkbox(
-                          value: checkboxProvider.isChecked,
-                          onChanged: (value) async {
-                            checkboxProvider.isChecked = value ?? true;
-                            String uid =
-                                await SharedPreferencesUtil.getUser() ?? '';
-                            checkWorkouts(uid as String,
-                                checkboxProvider.isChecked, name);
-                          },
-                          activeColor: Color(0xff9b1616),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               Hero(
                 tag: heroTag,
                 child: Container(

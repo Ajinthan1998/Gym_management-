@@ -4,11 +4,13 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 
 import '../qr_screen.dart';
 import '../signin.dart';
+import 'addNutrition.dart';
 import 'coachAddWorkout.dart';
 import 'coachCheckProgress.dart';
 import 'coachHomeScreen.dart';
 import 'coachProfileScreen.dart';
 import 'coachSalary.dart';
+import 'trainedUsers.dart';
 
 class CoachScreen extends StatefulWidget {
   const CoachScreen({Key? key}) : super(key: key);
@@ -23,7 +25,8 @@ class _CoachScreenState extends State<CoachScreen> {
   final List<Widget> _screens2 = [
     CoachHomeScreen(),
     CoachAddWorkout(),
-    CoachCheckProg(),
+    AddNutritionItemForm(),
+    TrainingPage(),
     CoachProfileScreen()
   ];
 
@@ -87,6 +90,10 @@ class _CoachScreenState extends State<CoachScreen> {
                   text: "Add",
                 ),
                 GButton(
+                  icon: Icons.pie_chart,
+                  text: "Nutrition",
+                ),
+                GButton(
                   icon: Icons.bar_chart,
                   text: "Progress",
                 ),
@@ -104,9 +111,3 @@ class _CoachScreenState extends State<CoachScreen> {
     );
   }
 }
-
-
-
-
-
-

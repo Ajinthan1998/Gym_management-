@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -27,11 +29,32 @@ class _AddNewUserState extends State<AddNewUser> {
   TextEditingController _phoneNumberTextController = TextEditingController();
   TextEditingController _roleTextController = TextEditingController();
   TextEditingController _dobTextController = TextEditingController();
+  TextEditingController _medicalInformationTextController =
+      TextEditingController();
+
+  List<TextInputFormatter> usernameInputFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
+  ];
+  List<TextInputFormatter> passwordInputFormatter = [];
+  List<TextInputFormatter> emailInputFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')),
+  ];
+  List<TextInputFormatter> phoneNumberInputFormatter = [
+    FilteringTextInputFormatter.digitsOnly,
+    LengthLimitingTextInputFormatter(10), // Limit to 10 digits
+    // You can also use a custom formatter to add dashes or spaces for formatting
+    CustomTextInputFormatter(mask: 'xxx-xxx-xxxx', separator: '-'),
+  ];
+  List<TextInputFormatter> addressInputFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 .,-]')),
+  ];
 
   bool _isPasswordVisible = false;
   bool _isPasswordMatch = true;
   File? _pickedImage;
   String selectedValue = "user";
+  String? pushToken;
+  int? categorySet = 1;
 
   List<DropdownMenuItem<String>> get dropdownItems {
     List<DropdownMenuItem<String>> menuItems = [
@@ -40,6 +63,13 @@ class _AddNewUserState extends State<AddNewUser> {
       DropdownMenuItem(child: Text("Coach"), value: "coach"),
     ];
     return menuItems;
+  }
+
+  Future<void> PushToken() async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    setState(() {
+      pushToken = fcmToken;
+    });
   }
 
   Future<void> _pickImage() async {
@@ -127,25 +157,18 @@ class _AddNewUserState extends State<AddNewUser> {
               children: <Widget>[
                 _buildImagePicker(),
                 const SizedBox(height: 20), // Add the image picker widget here
-                reusableTextField(
-                  "Enter Username",
-                  Icons.person_outline,
-                  false,
-                  _userNameTextController,
-                ),
+                reusableTextField("Enter Username", Icons.person_outline, false,
+                    _userNameTextController, usernameInputFormatter),
                 const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Email Id",
-                  Icons.mail_outline,
-                  false,
-                  _emailTextController,
-                ),
+                reusableTextField("Enter Email Id", Icons.mail_outline, false,
+                    _emailTextController, emailInputFormatter),
                 const SizedBox(height: 20),
                 reusableTextField(
                   "Enter Password",
                   Icons.lock_outlined,
                   !_isPasswordVisible,
                   _passwordTextController,
+                  passwordInputFormatter,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordVisible
@@ -166,6 +189,7 @@ class _AddNewUserState extends State<AddNewUser> {
                   Icons.lock_outlined,
                   !_isPasswordVisible,
                   _confirmPasswordTextController,
+                  passwordInputFormatter,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordVisible
@@ -189,18 +213,15 @@ class _AddNewUserState extends State<AddNewUser> {
                     ),
                   ),
                 const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Address",
-                  Icons.home,
-                  false,
-                  _addressTextController,
-                ),
+                reusableTextField("Enter Address", Icons.home, false,
+                    _addressTextController, addressInputFormatter),
                 const SizedBox(height: 20),
                 reusableTextField(
                   "Enter Phone number",
                   Icons.phone,
                   false,
                   _phoneNumberTextController,
+                  phoneNumberInputFormatter,
                 ),
                 const SizedBox(height: 20),
                 DropdownButtonFormField(
@@ -244,7 +265,7 @@ class _AddNewUserState extends State<AddNewUser> {
                       Icons.calendar_today,
                       color: Colors.white70,
                     ), //icon of text field
-                    labelText: "Enter Date",
+                    labelText: "Date of Birth",
                     labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
                     filled: true,
                     floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -284,11 +305,37 @@ class _AddNewUserState extends State<AddNewUser> {
                   },
                 ),
 
+                const SizedBox(height: 20), // Add the image picker widget here
+                reusableMulitpleLineField(
+                  "Enter medical issues",
+                  Icons.medical_services_outlined,
+                  _medicalInformationTextController,
+                ),
+
                 const SizedBox(height: 20),
-                signInSignUpButton(context, false, () {
+                signInSignUpButton(context, 'Create User', () {
                   if (_pickedImage == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Please pick an image')),
+                    );
+                    return;
+                  }
+
+                  if (_userNameTextController.text.isEmpty ||
+                      _emailTextController.text.isEmpty ||
+                      _passwordTextController.text.isEmpty ||
+                      _confirmPasswordTextController.text.isEmpty ||
+                      _addressTextController.text.isEmpty ||
+                      _phoneNumberTextController.text.isEmpty ||
+                      _dobTextController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please fill all fields')),
+                    );
+                    return;
+                  } else if (_passwordTextController.text !=
+                      _confirmPasswordTextController.text) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Passwords do not match')),
                     );
                     return;
                   }
@@ -299,12 +346,16 @@ class _AddNewUserState extends State<AddNewUser> {
                     password: _passwordTextController.text,
                   )
                       .then((value) {
+                    // PushToken();
+                    // pushToken = await FirebaseMessaging.instance.getToken();
                     String? uid = value.user?.uid;
                     String? email = value.user?.email;
                     String? username = _userNameTextController.text;
                     String address = _addressTextController.text;
                     String phone_no = _phoneNumberTextController.text;
                     String dob = _dobTextController.text;
+                    String medical_issues =
+                        _medicalInformationTextController.text;
 
                     //Save the user data to the firestore db
                     CollectionReference usersCollection =
@@ -315,7 +366,9 @@ class _AddNewUserState extends State<AddNewUser> {
                       'address': address,
                       'phone_no': phone_no,
                       'role': selectedValue,
+                      'categorySet': categorySet,
                       'dob': dob,
+                      'medical_issues': medical_issues,
                     }).then((_) {
                       // Upload the image to Firebase Storage
                       String imagePath = 'user_profile_images/$uid';
@@ -337,7 +390,7 @@ class _AddNewUserState extends State<AddNewUser> {
                       );
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Signin()),
+                        MaterialPageRoute(builder: (context) => AddNewUser()),
                       );
                     }).onError((error, stackTrace) {
                       print("Error ${error.toString()}");
