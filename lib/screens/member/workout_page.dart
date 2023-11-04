@@ -28,41 +28,8 @@ class Workouts extends StatelessWidget {
     return Colors.red;
   }
 
-  // Future<void> checkWorkouts(String uid, bool checked, String workout) async {
-  //   String tik;
-  //   String currentDate = DateTime.now().toString().split(' ')[0];
-  //   if (checked) {
-  //     tik = "checked";
-  //     try {
-  //       DocumentReference userRef =
-  //           FirebaseFirestore.instance.collection('users').doc(uid);
-  //       DocumentReference workoutHistoryRef =
-  //           userRef.collection('workout_history').doc(currentDate);
-  //
-  //       Map<String, dynamic> workoutData = {
-  //         'exercise': workout,
-  //         'date': currentDate,
-  //       };
-  //
-  //       await workoutHistoryRef.set({
-  //         'workouts': FieldValue.arrayUnion([workoutData]),
-  //       }, SetOptions(merge: true));
-  //
-  //       print('Workout added successfully!');
-  //     } catch (e) {
-  //       print('Error adding workout: $e');
-  //     }
-  //   } else {
-  //     tik = "not checked";
-  //   }
-  //   print(uid);
-  //   print(workout);
-  //   print(tik);
-  //   print(uid + currentDate);
-  //
-  // }
-
-  Future<void> checkWorkouts(String uid, bool checked, String workout) async {
+  Future<void> checkWorkouts(
+      BuildContext context, String uid, bool checked, String workout) async {
     String tik;
     String currentDate = DateTime.now().toString().split(' ')[0];
 
@@ -89,6 +56,9 @@ class Workouts extends StatelessWidget {
             'exercises': [workout],
           });
         }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$workout added to the history')),
+        );
 
         print('Workout added successfully!');
       } catch (e) {
@@ -231,19 +201,6 @@ class Workouts extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // isFavourite
-                    //     ? Icon(Icons.favorite, color: Color(0xFFEF7532))
-                    //     : Icon(Icons.favorite_outline, color: Color(0xFFEF7532))
-                    // Todo check box
-                    // Checkbox(
-                    //   checkColor: Colors.white,
-                    //   fillColor: MaterialStateProperty.resolveWith(getColor),
-                    //   value: isChecked,
-                    //   onChanged: (bool? value) {
-                    //     isChecked = value!;
-                    //   },
-                    // )
-
                     ChangeNotifierProvider(
                       create: (_) => CheckboxProvider(),
                       child: Consumer<CheckboxProvider>(
@@ -253,7 +210,7 @@ class Workouts extends StatelessWidget {
                             checkboxProvider.isChecked = value ?? true;
                             String uid =
                                 await SharedPreferencesUtil.getUser() ?? '';
-                            checkWorkouts(uid as String,
+                            checkWorkouts(context, uid as String,
                                 checkboxProvider.isChecked, name);
                           },
                           activeColor: Color(0xff9b1616),
@@ -278,7 +235,7 @@ class Workouts extends StatelessWidget {
                                 videoPlayerController:
                                     VideoPlayerController.network(imgPath),
                                 autoPlay: false,
-                                autoInitialize: false,
+                                autoInitialize: true,
                                 looping: false,
                                 allowedScreenSleep: false,
                                 showControls: true,

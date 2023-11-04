@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../reusable_widgets/reusable_widgets.dart';
 import '../../utils/colors.dart';
@@ -12,7 +13,11 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  String? _emailError;
   TextEditingController _emailTextController = TextEditingController();
+  List<TextInputFormatter> emailInputFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')),
+  ];
 
   @override
   void dispose() {
@@ -64,7 +69,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         height: 30,
                       ),
                       reusableTextField("Enter Email", Icons.person_outline,
-                          false, _emailTextController),
+                          false, _emailTextController, emailInputFormatter),
                       MaterialButton(
                         onPressed: passwordReset,
                         child: Text(

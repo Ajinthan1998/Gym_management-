@@ -3,7 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class PackageDetailsPage extends StatelessWidget {
+class PackageDetailsPage extends StatefulWidget {
+  @override
+  _PackageDetailsPageState createState() => _PackageDetailsPageState();
+}
+
+class _PackageDetailsPageState extends State<PackageDetailsPage> {
+  String? selectedCategory;
   Future<List<Map<String, dynamic>>> _loadMedia() async {
     List<Map<String, dynamic>> mediaFiles = [];
 
@@ -25,7 +31,8 @@ class PackageDetailsPage extends StatelessWidget {
     return mediaFiles;
   }
 
-  Future<void> addPackageToFirestore(String packageName, String userUID) async {
+  Future<void> addPackageToFirestore(
+      String packageName, String userUID, String s) async {
     final CollectionReference usersRef =
         FirebaseFirestore.instance.collection('users');
 
@@ -36,6 +43,7 @@ class PackageDetailsPage extends StatelessWidget {
       if (userData['PackageName'] == null) {
         await usersRef.doc(userUID).update({
           'PackageName': packageName,
+          'SelectedCategory': selectedCategory,
         });
         print('Package added successfully to the user document!');
       } else {
@@ -95,21 +103,55 @@ class PackageDetailsPage extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      SizedBox(height: 10),
                                       Text(
                                           'Description: ${media['description']}'),
-                                      Text('Price: ${media['price']}'),
-                                      Text('Duration: ${media['duration']}'),
+                                      SizedBox(height: 10),
+                                      Text('Price: Rs  ${media['price']} .00'),
+                                      SizedBox(height: 10),
+                                      Text(
+                                          'Duration: ${media['duration']} Month'),
                                     ],
                                   ),
                                 ),
                               ),
                               SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Radio<String>(
+                                    activeColor: Colors.white70,
+                                    value: 'Weight Gain',
+                                    groupValue: selectedCategory,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedCategory = value;
+                                      });
+                                    },
+                                  ),
+                                  Text('Weight Gain'),
+                                  Radio<String>(
+                                    activeColor: Colors.white70,
+                                    value: 'Weight Loss',
+                                    groupValue: selectedCategory,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedCategory = value;
+                                      });
+                                    },
+                                  ),
+                                  Text('Weight Loss'),
+                                ],
+                              ),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.black,
                                 ),
-                                onPressed: () => addPackageToFirestore(
-                                    media['packageName'], currentUserUID),
+                                onPressed: () {
+                                  if (selectedCategory != null) {
+                                    addPackageToFirestore(media['packageName'],
+                                        currentUserUID, selectedCategory!);
+                                  }
+                                },
                                 child: Text('Add Package'),
                               ),
                             ],

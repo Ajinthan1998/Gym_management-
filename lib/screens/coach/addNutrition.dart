@@ -80,9 +80,19 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
               key: _formKey,
               child: Column(
                 children: [
+                  SizedBox(height: 20),
                   DropdownButtonFormField<String>(
                     value: _foodTime,
-                    decoration: InputDecoration(labelText: 'Food Time'),
+                    decoration: InputDecoration(
+                      labelText: 'Food Time',
+                      labelStyle: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 25,
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(width: 2, color: Colors.white70),
+                      ),
+                    ),
                     onChanged: (value) {
                       setState(() {
                         _foodTime = value;
@@ -103,7 +113,16 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   ),
                   TextFormField(
                     controller: _foodController,
-                    decoration: InputDecoration(labelText: 'Food'),
+                    decoration: InputDecoration(
+                      labelText: 'Food',
+                      labelStyle: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 20,
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(width: 2, color: Colors.white70),
+                      ),
+                    ),
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Please enter a food';
@@ -113,7 +132,16 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   ),
                   DropdownButtonFormField<String>(
                     value: _day,
-                    decoration: InputDecoration(labelText: 'Day'),
+                    decoration: InputDecoration(
+                      labelText: 'Day',
+                      labelStyle: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 20,
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(width: 2, color: Colors.white70),
+                      ),
+                    ),
                     onChanged: (value) {
                       setState(() {
                         _day = value;
@@ -134,7 +162,16 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   ),
                   DropdownButtonFormField<String>(
                     value: _category,
-                    decoration: InputDecoration(labelText: 'Category'),
+                    decoration: InputDecoration(
+                      labelText: 'Category',
+                      labelStyle: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 20,
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(width: 2, color: Colors.white70),
+                      ),
+                    ),
                     onChanged: (value) {
                       setState(() {
                         _category = value;
@@ -155,7 +192,16 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   ),
                   TextFormField(
                     controller: _caloriesController,
-                    decoration: InputDecoration(labelText: 'Calories'),
+                    decoration: InputDecoration(
+                      labelText: 'Calories',
+                      labelStyle: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 20,
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(width: 2, color: Colors.white70),
+                      ),
+                    ),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -167,7 +213,11 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                       return null;
                     },
                   ),
+                  SizedBox(height: 20),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xff9b1616),
+                    ),
                     onPressed: _submitForm,
                     child: Text('Add Nutrition Item'),
                   ),
