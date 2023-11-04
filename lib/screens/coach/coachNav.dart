@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:sample_app/screens/coach/trainedUsers.dart';
 
 import '../qr_screen.dart';
 import '../signin.dart';
+import 'addNutrition.dart';
 import 'coachAddWorkout.dart';
 import 'coachCheckProgress.dart';
 import 'coachHomeScreen.dart';
@@ -23,7 +25,8 @@ class _CoachScreenState extends State<CoachScreen> {
   final List<Widget> _screens2 = [
     CoachHomeScreen(),
     CoachAddWorkout(),
-    CoachCheckProg(),
+    AddNutritionItemForm(),
+    TrainingPage(),
     CoachProfileScreen()
   ];
 
@@ -49,7 +52,7 @@ class _CoachScreenState extends State<CoachScreen> {
             width: 40, // Adjust the size as needed
           ),
           // title: Text("JK Fitness"),
-          backgroundColor: Colors.white12,
+          backgroundColor: Colors.black,
           actions: [
             IconButton(
                 onPressed: () {
@@ -87,8 +90,12 @@ class _CoachScreenState extends State<CoachScreen> {
                   text: "Add",
                 ),
                 GButton(
+                  icon: Icons.pie_chart,
+                  text: "Nutrition",
+                ),
+                GButton(
                   icon: Icons.bar_chart,
-                  text: "Progress",
+                  text: "Mark",
                 ),
                 GButton(
                   icon: Icons.person,

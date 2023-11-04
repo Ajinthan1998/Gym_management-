@@ -7,6 +7,8 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
+import '../recpetionist/viewDetails.dart';
+
 class QRScan extends StatefulWidget {
   const QRScan({super.key});
 
@@ -21,8 +23,10 @@ class CoachInfo {
   CoachInfo(this.name, this.imagePath);
 }
 
+
 class _QRScanState extends State<QRScan> {
   String role = "";
+  int? userLevel;
   String currentDate = DateTime.now().toString().split(' ')[0];
   String currentTime =
       DateTime.now().toLocal().toString().split(' ')[1].substring(0, 5);
@@ -37,6 +41,37 @@ class _QRScanState extends State<QRScan> {
       'hour': int.parse(timeParts[0]),
       'minute': int.parse(timeParts[1]),
     };
+  }
+
+  Future<void> _calculateUserLevel() async {
+
+    final CollectionReference<Map<String, dynamic>> attendanceCollectionRef =
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(result)
+        .collection('attendance');
+
+    final QuerySnapshot<Map<String, dynamic>> attendanceQuerySnapshot =
+    await attendanceCollectionRef.get();
+
+    final int attendanceCount = attendanceQuerySnapshot.size;
+
+    int calculatedUserLevel =0;
+
+    calculatedUserLevel = attendanceCount ~/ 5;
+
+    print('calculatedUserLevel: $calculatedUserLevel');
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(result)
+        .update({'level': calculatedUserLevel});
+
+    setState(() {
+      userLevel = calculatedUserLevel;
+    });
+
+
+    print('Attendance Count: $attendanceCount');
   }
 
   Duration calculateWorkingHours(List<Map<String, dynamic>> attendanceData) {
@@ -320,37 +355,10 @@ class _QRScanState extends State<QRScan> {
           bool isAvailable = attendanceData.isNotEmpty &&
               attendanceData.last['outtime'] == null;
 
-          String? currentUserUID = FirebaseAuth.instance.currentUser
-              ?.uid; // Replace with your method to get the current coach's ID
-
-          // Retrieve the current coach's name from the userCollection using their ID
-          DocumentSnapshot coachSnapshot = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(currentUserUID)
-              .get();
-
-          if (coachSnapshot.exists) {
-            String currentCoachName = coachSnapshot['coachName'] as String;
-
-            // Get the count of users trained by the coach on the current day
-            QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-                .collection('users')
-                .where('coachName',
-                    isEqualTo:
-                        currentCoachName) // Replace with the actual field name for coach's name
-                .get();
-
-            int trainedUsersCount = userSnapshot.docs.length;
-            List<String> trainedUsernames = userSnapshot.docs
-                .map((doc) => doc['username'] as String)
-                .toList();
-
             await attendanceDoc.set({
               'date': currentDate,
               'availability': isAvailable ? "Yes" : "No",
               'attendance_data': attendanceData,
-              'trainedUsersCount': trainedUsersCount,
-              'trainedUsernames': trainedUsernames,
             }, SetOptions(merge: true)).then((_) {
               print('Attendance document created/updated successfully');
             }).catchError((error) {
@@ -374,7 +382,7 @@ class _QRScanState extends State<QRScan> {
             }).catchError((error) {
               print('Failed to update total working hours: $error');
             });
-          }
+
         } else if (role == 'user') {
           DocumentSnapshot attendanceSnapshot = await attendanceDoc.get();
           Map<String, dynamic>? attendanceData =
@@ -398,6 +406,21 @@ class _QRScanState extends State<QRScan> {
               // Check if 'outtime' is already set, and only set it if it's not already present and 'intime' < 'outtime'
               if (attendanceData['outtime'] == null) {
                 if (attendanceType == 'Out') {
+                  DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(result);
+                  DocumentSnapshot userSnapshot = await userDocRef.get();
+                  Map<String, dynamic>? userData =
+                  userSnapshot.data() as Map<String, dynamic>?;
+
+                  if (userData != null && userData['categorySet'] != null) {
+                    int currentCategorySet = userData['categorySet'];
+
+                    int newCategorySet = (currentCategorySet % 3) + 1;
+                    await userDocRef.update({'categorySet': newCategorySet});
+                  } else {
+                    // Handle the scenario where user data or categorySet is missing
+                    print('User data or categorySet is missing.');
+                  }
+
                   await attendanceDoc.set({
                     'outtime': currentTime,
                     'availability': "No",
@@ -426,6 +449,7 @@ class _QRScanState extends State<QRScan> {
               }).catchError((error) {
                 print('Failed to create/update attendance document: $error');
               });
+              await _calculateUserLevel();
             }
           }
         }
@@ -482,6 +506,7 @@ class _QRScanState extends State<QRScan> {
     return Scaffold(
       appBar: AppBar(
         title: Text("QR Code Scanner"),
+        backgroundColor: Colors.black,
       ),
       body: Column(
         children: [
@@ -507,12 +532,39 @@ class _QRScanState extends State<QRScan> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                    ),
                     onPressed: () => handleButtonPress("In"),
                     child: Text("In"),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                    ),
                     onPressed: () => handleButtonPress("Out"),
                     child: Text("Out"),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                          context, MaterialPageRoute(builder: (context) => ViewDetails(
+                           uid : result,
+                      )));
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (context) => WorkoutDetail(
+                      //       assetPath: imgPath,
+                      //       workoutName: name,
+                      //       instructions: instruction,
+                      //     ),
+                      //   ),
+                      // );
+                    },
+                    child: Text("View Details"),
                   ),
                 ],
                 // children: [

@@ -25,7 +25,8 @@ class QRScreen extends StatefulWidget {
 
 class _QRScreenState extends State<QRScreen> {
   String? email;
-  String? address;
+  String? username;
+  String? role;
   String? uid;
   String _data = "";
 
@@ -39,14 +40,15 @@ class _QRScreenState extends State<QRScreen> {
 
     if (uid != null) {
       DocumentReference userDocRef =
-          FirebaseFirestore.instance.collection('users').doc(uid);
+      FirebaseFirestore.instance.collection('users').doc(uid);
       userDocRef.get().then((DocumentSnapshot documentSnapshot) {
         if (mounted) {
           Map<String, dynamic>? userData =
-              documentSnapshot.data() as Map<String, dynamic>?;
+          documentSnapshot.data() as Map<String, dynamic>?;
           setState(() {
             email = userData!['email'];
-            address = userData['address'];
+            username = userData['username'];
+            role = userData['role'];
           });
         }
       });
@@ -60,52 +62,29 @@ class _QRScreenState extends State<QRScreen> {
 
       body: Center(
           child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-            ),
-            child: Text("Logout"),
-            onPressed: () {
-              FirebaseAuth.instance.signOut().then((value) {
-                print("Signed Out");
-                setState(() {
-                  uid = null;
-                  email = null;
-                  address = null;
-                });
-                // FirebaseAuth.instance.setPersistence(Persistence.NONE);
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Signin()));
-              });
-            },
-          ),
-          Text(email ?? ""),
-          Text(address ?? ""),
-          Text(uid ?? ""),
-
-          //QR generator
-          RepaintBoundary(
-            key: globalKey,
-            child: QrImage(
-              data: uid ?? "", //text for qR generator
-              version: QrVersions.auto,
-              size: 200.0,
-            ),
-          ),
-          SizedBox(height: 20.0),
-          Text('Data: $uid'),
-          FloatingActionButton(
-            backgroundColor: Colors.black,
-            onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => Home()));
-            },
-            child: Icon(Icons.navigate_before),
-          ),
-        ],
-      )),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(username ?? ""),
+              Text('User role: $role'),
+              SizedBox(
+                height: 20,
+              ),
+              //QR generator
+              Container(
+                color: Colors.white,
+                child: RepaintBoundary(
+                  key: globalKey,
+                  child: QrImage(
+                    data: uid ?? "", //text for qR generator
+                    version: QrVersions.auto,
+                    size: 200.0,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.0),
+              Text('Data: $uid'),
+            ],
+          )),
     );
   }
 }

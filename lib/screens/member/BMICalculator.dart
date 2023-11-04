@@ -202,6 +202,7 @@ class _BMICalculatorState extends State<BMICalculator> {
                               width: 300,
                               child: TextField(
                                 controller: _heightController,
+                                textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                   enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(

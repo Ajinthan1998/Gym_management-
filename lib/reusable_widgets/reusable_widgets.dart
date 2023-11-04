@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 Image logoWidget(String imageName) {
   return Image.asset(
@@ -13,10 +14,11 @@ Image logoWidget(String imageName) {
 }
 
 TextField reusableTextField(String text, IconData icon, bool isPasswordType,
-    TextEditingController controller,
+    TextEditingController controller, List<TextInputFormatter> formatter,
     {Widget? suffixIcon}) {
   return TextField(
     controller: controller,
+    inputFormatters: formatter,
     obscureText: isPasswordType,
     enableSuggestions: !isPasswordType,
     autocorrect: !isPasswordType,
@@ -44,7 +46,7 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
 }
 
 Container signInSignUpButton(
-    BuildContext context, bool isLogin, Function onTap) {
+    BuildContext context, String label, Function onTap) {
   return Container(
     width: MediaQuery.of(context).size.width,
     height: 50,
@@ -55,7 +57,8 @@ Container signInSignUpButton(
         onTap();
       },
       child: Text(
-        isLogin ? 'LOG IN' : 'SIGN UP',
+        // isLogin ? 'LOG IN' : 'SIGN UP',
+        label,
         style: const TextStyle(
             color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 16),
       ),
@@ -71,30 +74,6 @@ Container signInSignUpButton(
     ),
   );
 }
-
-// void uid() {
-//   String? email;
-//   String? address;
-//   String? uid;
-//   final FirebaseAuth auth = FirebaseAuth.instance;
-//   final User? user = auth.currentUser;
-//   uid = user?.uid;
-//
-//   if (uid != null) {
-//     DocumentReference userDocRef =
-//         FirebaseFirestore.instance.collection('users').doc(uid);
-//
-//     userDocRef.get().then((DocumentSnapshot documentSnapshot) {
-//       // Map<String, dynamic> userData = documentSnapshot.data!.data()
-//       Map<String, dynamic>? userData =
-//           documentSnapshot.data() as Map<String, dynamic>?;
-//       setState(() {
-//         email = userData!['email'];
-//         address = userData['address'];
-//       });
-//     });
-//   }
-// }
 
 class UserDataFetcher {
   static void fetchUserDataAndUpdateState(BuildContext context,
@@ -114,5 +93,37 @@ class UserDataFetcher {
         setStateCallback(userData?['email'], userData?['address']);
       });
     }
+  }
+}
+
+class CustomTextInputFormatter extends TextInputFormatter {
+  final String mask;
+  final String separator;
+
+  CustomTextInputFormatter({required this.mask, required this.separator});
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String maskedText = '';
+    int maskIndex = 0;
+    int separatorIndex = 0;
+
+    for (int i = 0; i < mask.length; i++) {
+      if (mask[i] == 'x') {
+        if (maskIndex < newValue.text.length) {
+          maskedText += newValue.text[maskIndex];
+          maskIndex++;
+        }
+      } else if (separator != null) {
+        maskedText += separator[separatorIndex % separator.length];
+        separatorIndex++;
+      }
+    }
+
+    return TextEditingValue(
+      text: maskedText,
+      selection: TextSelection.collapsed(offset: maskedText.length),
+    );
   }
 }

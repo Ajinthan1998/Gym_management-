@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -21,12 +22,28 @@ class _AddNewUserState extends State<AddNewUser> {
   TextEditingController _userNameTextController = TextEditingController();
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _confirmPasswordTextController =
-      TextEditingController();
+  TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
   TextEditingController _addressTextController = TextEditingController();
   TextEditingController _phoneNumberTextController = TextEditingController();
   TextEditingController _roleTextController = TextEditingController();
   TextEditingController _dobTextController = TextEditingController();
+  List<TextInputFormatter> usernameInputFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_]')),
+  ];
+  List<TextInputFormatter> passwordInputFormatter = [];
+  List<TextInputFormatter> emailInputFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._-]')),
+  ];
+  List<TextInputFormatter> phoneNumberInputFormatter = [
+    FilteringTextInputFormatter.digitsOnly,
+    LengthLimitingTextInputFormatter(10), // Limit to 10 digits
+    // You can also use a custom formatter to add dashes or spaces for formatting
+    CustomTextInputFormatter(mask: 'xxx-xxx-xxxx', separator: '-'),
+  ];
+  List<TextInputFormatter> addressInputFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 .,-]')),
+  ];
 
   bool _isPasswordVisible = false;
   bool _isPasswordMatch = true;
@@ -65,13 +82,13 @@ class _AddNewUserState extends State<AddNewUser> {
                 radius: 50,
                 backgroundColor: Colors.white.withOpacity(0.1),
                 backgroundImage:
-                    _pickedImage != null ? FileImage(_pickedImage!) : null,
+                _pickedImage != null ? FileImage(_pickedImage!) : null,
                 child: _pickedImage == null
                     ? Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Colors.white70,
-                      )
+                  Icons.person,
+                  size: 40,
+                  color: Colors.white70,
+                )
                     : null,
               ),
               Row(
@@ -127,25 +144,18 @@ class _AddNewUserState extends State<AddNewUser> {
               children: <Widget>[
                 _buildImagePicker(),
                 const SizedBox(height: 20), // Add the image picker widget here
-                reusableTextField(
-                  "Enter Username",
-                  Icons.person_outline,
-                  false,
-                  _userNameTextController,
-                ),
+                reusableTextField("Enter Username", Icons.person_outline, false,
+                    _userNameTextController, usernameInputFormatter),
                 const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Email Id",
-                  Icons.mail_outline,
-                  false,
-                  _emailTextController,
-                ),
+                reusableTextField("Enter Email Id", Icons.mail_outline, false,
+                    _emailTextController, emailInputFormatter),
                 const SizedBox(height: 20),
                 reusableTextField(
                   "Enter Password",
                   Icons.lock_outlined,
                   !_isPasswordVisible,
                   _passwordTextController,
+                  passwordInputFormatter,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordVisible
@@ -166,6 +176,7 @@ class _AddNewUserState extends State<AddNewUser> {
                   Icons.lock_outlined,
                   !_isPasswordVisible,
                   _confirmPasswordTextController,
+                  passwordInputFormatter,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordVisible
@@ -189,19 +200,11 @@ class _AddNewUserState extends State<AddNewUser> {
                     ),
                   ),
                 const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Address",
-                  Icons.home,
-                  false,
-                  _addressTextController,
-                ),
+                reusableTextField("Enter Address", Icons.home, false,
+                    _addressTextController, addressInputFormatter),
                 const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Phone number",
-                  Icons.phone,
-                  false,
-                  _phoneNumberTextController,
-                ),
+                reusableTextField("Enter Phone number", Icons.phone, false,
+                    _phoneNumberTextController, phoneNumberInputFormatter),
                 const SizedBox(height: 20),
                 DropdownButtonFormField(
                     style: TextStyle(color: Colors.white.withOpacity(0.9)),
@@ -238,7 +241,7 @@ class _AddNewUserState extends State<AddNewUser> {
                 TextField(
                   style: TextStyle(color: Colors.white.withOpacity(0.9)),
                   controller:
-                      _dobTextController, //editing controller of this TextField
+                  _dobTextController, //editing controller of this TextField
                   decoration: InputDecoration(
                     prefixIcon: Icon(
                       Icons.calendar_today,
@@ -256,7 +259,7 @@ class _AddNewUserState extends State<AddNewUser> {
                     // suffixIcon: suffixIcon,
                   ),
                   readOnly:
-                      true, //set it true, so that user will not able to edit text
+                  true, //set it true, so that user will not able to edit text
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                         context: context,
@@ -269,7 +272,7 @@ class _AddNewUserState extends State<AddNewUser> {
                       print(
                           pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
                       String formattedDate =
-                          DateFormat('yyyy-MM-dd').format(pickedDate);
+                      DateFormat('yyyy-MM-dd').format(pickedDate);
                       print(
                           formattedDate); //formatted date output using intl package =>  2021-03-16
                       //you can implement different kind of Date Format here according to your requirement
@@ -285,12 +288,35 @@ class _AddNewUserState extends State<AddNewUser> {
                 ),
 
                 const SizedBox(height: 20),
-                signInSignUpButton(context, false, () {
+                signInSignUpButton(context, 'Create User', () {
                   if (_pickedImage == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Please pick an image')),
                     );
                     return;
+                  }
+
+                  if (_userNameTextController.text.isEmpty ||
+                      _emailTextController.text.isEmpty ||
+                      _passwordTextController.text.isEmpty ||
+                      _confirmPasswordTextController.text.isEmpty ||
+                      _addressTextController.text.isEmpty ||
+                      _phoneNumberTextController.text.isEmpty ||
+                      _dobTextController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please fill all fields')),
+                    );
+                    return;
+                  } else if (_passwordTextController.text !=
+                      _confirmPasswordTextController.text) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Passwords do not match')),
+                    );
+                    return;
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Filled')),
+                    );
                   }
 
                   FirebaseAuth.instance
@@ -308,7 +334,7 @@ class _AddNewUserState extends State<AddNewUser> {
 
                     //Save the user data to the firestore db
                     CollectionReference usersCollection =
-                        FirebaseFirestore.instance.collection('users');
+                    FirebaseFirestore.instance.collection('users');
                     usersCollection.doc(uid).set({
                       'username': username,
                       'email': email,
@@ -337,7 +363,7 @@ class _AddNewUserState extends State<AddNewUser> {
                       );
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Signin()),
+                        MaterialPageRoute(builder: (context) => AddNewUser()),
                       );
                     }).onError((error, stackTrace) {
                       print("Error ${error.toString()}");

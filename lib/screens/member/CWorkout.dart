@@ -64,6 +64,9 @@ class _CWorkoutState extends State<CWorkout>
               height: 15.0,
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+              ),
               onPressed: () async {
                 String uid = await SharedPreferencesUtil.getUser() ?? '';
                 Navigator.push(

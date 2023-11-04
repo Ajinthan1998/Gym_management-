@@ -188,8 +188,8 @@ class NutritionChart extends StatelessWidget {
 
                             return Container(
                               child: SizedBox(
-                                width: 150,
-                                height: 250,
+                                width: 180,
+                                height: 300,
                                 child: Container(
                                   child: Card(
                                     margin: EdgeInsets.all(10),
@@ -254,97 +254,106 @@ class NutritionChart extends StatelessWidget {
                             );
                           }).toList(),
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Suggestions",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                height: 16,
-                                width: 30,
-                              ),
-                              Row(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Fat foods',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Image.asset(
-                                        'assets/images/fats.jpg',
-                                        width: 150,
-                                        height: 200,
-                                      ),
-                                    ],
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left:50.0, top: 20.0),
+                                  child: Text(
+                                    "Suggestions",
+                                    style: TextStyle(
+                                        fontSize: 24, fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Protein foods',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                ),
+                                SizedBox(
+                                  height: 16,
+                                  width: 30,
+                                ),
+                                Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Fat foods',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      Image.asset(
-                                        'assets/images/protein.jpg',
-                                        width: 150,
-                                        height: 200,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(
-                                        'Grains foods',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                        Image.asset(
+                                          'assets/images/fats.jpg',
+                                          width: 150,
+                                          height: 200,
                                         ),
-                                      ),
-                                      Image.asset(
-                                        'assets/images/grains.jpg',
-                                        width: 150,
-                                        height: 200,
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        'Fruits & Vegetables foods',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                      ],
+                                    ),
+                                    SizedBox(width: 20.0,),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Protein foods',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      Image.asset(
-                                        'assets/images/Fruits_and_vegetables.jpg',
-                                        width: 150,
-                                        height: 200,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
+                                        Image.asset(
+                                          'assets/images/protein.jpg',
+                                          width: 150,
+                                          height: 200,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Grains foods',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Image.asset(
+                                          'assets/images/grains.jpg',
+                                          width: 150,
+                                          height: 200,
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(width: 20.0,),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Fruits & Vegetables foods',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Image.asset(
+                                          'assets/images/Fruits_and_vegetables.jpg',
+                                          width: 150,
+                                          height: 200,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],

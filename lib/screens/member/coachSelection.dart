@@ -91,7 +91,6 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
               'trainedUsers': FieldValue.arrayUnion([currentUserUID])
             });
           }
-
           print(
               'Selected Coach $selectedCoach has been stored for the current user and added to coach\'s trained users.');
           setState(() {
@@ -121,7 +120,6 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,8 +129,8 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               'Welcome to the Coach Selection System',
@@ -144,17 +142,21 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
                 'Selected Coach: $selectedCoach',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-            if (!coachSelected && !coachNames.contains(selectedCoach))
+            if (!coachSelected)
               ...coachNames.map(
                     (name) => RadioListTile<String>(
+                      activeColor:Colors.white70,
                   title: Text(name),
-                  value: name,
-                  groupValue: selectedCoach,
-                  onChanged: coachSelected ? null : _handleRadioValueChanged,
+                      value: name,
+                      groupValue: selectedCoach,
+                      onChanged: _handleRadioValueChanged,
                 ),
               ).toList(),
             SizedBox(height: 16),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff9b1616),
+              ),
               onPressed: coachSelected ? null : _selectCoach,
               child: Text('Select Coach'),
             ),

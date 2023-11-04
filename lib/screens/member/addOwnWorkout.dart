@@ -1,20 +1,24 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
 import 'package:video_player/video_player.dart';
+import 'package:path/path.dart' as path;
 
-class CoachAddWorkout extends StatefulWidget {
-  const CoachAddWorkout({Key? key}) : super(key: key);
+import '../../utils/sharedPrefencesUtil.dart';
+import 'seeOwnWorkouts.dart';
+
+class AddOwnWorkouts extends StatefulWidget {
+  const AddOwnWorkouts({Key? key}) : super(key: key);
 
   @override
-  State<CoachAddWorkout> createState() => _CoachAddWorkoutState();
+  State<AddOwnWorkouts> createState() => _AddOwnWorkoutsState();
 }
 
-class _CoachAddWorkoutState extends State<CoachAddWorkout> {
+class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
   String? valueChoose;
   TextEditingController _instructionTextController = TextEditingController();
   TextEditingController _nameTextController = TextEditingController();
@@ -24,7 +28,10 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
 
   FirebaseStorage storage = FirebaseStorage.instance;
   CollectionReference imageCollection =
-  FirebaseFirestore.instance.collection('workouts');
+  FirebaseFirestore.instance.collection('ownWorkouts');
+
+  CollectionReference usersCollection =
+  FirebaseFirestore.instance.collection('users');
 
   XFile? pickedImageFile;
   File? pickedVideoFile;
@@ -48,6 +55,7 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
   }
 
   Future<void> _upload() async {
+    String uid = await SharedPreferencesUtil.getUser() ?? '';
     if (pickedImageFile == null && pickedVideoFile == null) {
       // No file picked, show an error message
       showDialog(
@@ -75,13 +83,13 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
     if (pickedImageFile != null) {
       fileName = path.basename(pickedImageFile!.path);
       File imageFile = File(pickedImageFile!.path);
-      String imagePath = 'workouts/$fileName';
+      String imagePath = 'ownWorkouts/$fileName';
 
       await storage.ref().child(imagePath).putFile(
         imageFile,
         SettableMetadata(
           customMetadata: {
-            'uploaded_by': 'coach..',
+            'uploaded_by': uid,
           },
         ),
       );
@@ -92,13 +100,13 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
     if (pickedVideoFile != null) {
       fileName = path.basename(pickedVideoFile!.path);
       File videoFile = File(pickedVideoFile!.path);
-      String videoPath = 'workouts/$fileName';
+      String videoPath = 'ownWorkouts/$fileName';
 
       await storage.ref().child(videoPath).putFile(
         videoFile,
         SettableMetadata(
           customMetadata: {
-            'uploaded_by': 'coach..',
+            'uploaded_by': uid,
           },
         ),
       );
@@ -131,7 +139,10 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
       );
 
       if (confirmUpload == true) {
-        await imageCollection.doc(fileName).set({
+        DocumentReference userDoc = usersCollection.doc(uid);
+        DocumentReference ownWorkoutDoc =
+        userDoc.collection('ownWorkout').doc(fileName);
+        await ownWorkoutDoc.set({
           if (imageUrl != null) 'url': imageUrl,
           if (videoUrl != null) 'url': videoUrl,
           'fileName': fileName,
@@ -171,6 +182,7 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
     final double height = MediaQuery.of(context).size.height;
     return Scaffold(
       body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Container(
           padding: const EdgeInsets.only(left: 55, right: 55),
           child: Column(
@@ -187,8 +199,8 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
                     fontWeight: FontWeight.bold,
                   ),
                   focusedBorder: const OutlineInputBorder(
-                         borderSide: BorderSide(width: 2, color: Colors.white70),
-                      ),
+                    borderSide: BorderSide(width: 2, color: Colors.white70),
+                  ),
                 ),
               ),
               Row(
@@ -200,8 +212,8 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
                         child: const Text(
                           "Category",
                           style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 20,
+                            color: Colors.white70,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -283,6 +295,9 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
                   ),
                 ),
               ),
+              SizedBox(
+                height: 10,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -336,6 +351,21 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
                     },
                     child: const Text('Save'),
                   ),
+                ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white38,
+                  ),
+                  child: Text("See own workouts"),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SeeOwnWorkouts()));
+                    // });
+                  },
                 ),
               ),
             ],

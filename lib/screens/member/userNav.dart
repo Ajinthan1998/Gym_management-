@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:sample_app/screens/member/CWorkout.dart';
 import 'package:sample_app/screens/member/prog.dart';
-
+import 'package:sizer/sizer.dart';
 import '../cookie/cHome.dart';
-import 'add_workout.dart';
+import 'addOwnWorkout.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
-import 'progress_screen.dart';
 import '../qr_screen.dart';
 import 'workout_screen.dart';
 
@@ -21,6 +20,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
+ double height = 0.0;
   // static const TextStyle optionStyle =
   //     TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _screens = [
@@ -37,6 +37,7 @@ class _HomeState extends State<Home> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -47,21 +48,21 @@ class _HomeState extends State<Home> {
         ),
         home: Scaffold(
           appBar: AppBar(
-            leading: Image.asset(
-              'assets/images/jk fitness.jpg',
-              width: 40, // Adjust the size as needed
-            ),
-            // title: Text("JK Fitness"),
-            backgroundColor: Colors.white12,
-            actions: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => QRScreen()));
-                  },
-                  icon: Icon(Icons.qr_code))
-            ],
+          leading: Image.asset(
+            'assets/images/jk fitness.jpg',
+            width: 40, // Adjust the size as needed
           ),
+          // title: Text("JK Fitness"),
+          backgroundColor: Colors.black,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => QRScreen()));
+                },
+                icon: Icon(Icons.qr_code))
+          ],
+        ),
           body: Center(
             child: IndexedStack(
               index: _selectedIndex,
@@ -77,16 +78,20 @@ class _HomeState extends State<Home> {
           // ),
           bottomNavigationBar: Container(
             color: Colors.black,
-            child: Padding(
+              // width: 20.h,
+              // height:30.h,
+
+              child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+              // const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+             EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
               child: GNav(
                 backgroundColor: Colors.white12,
                 color: Colors.white,
                 activeColor: Colors.black,
                 tabBackgroundColor: Colors.white,
                 padding: EdgeInsets.all(16),
-                gap: 5,
+                gap: 3,
                 tabs: const [
                   GButton(
                     icon: Icons.home,

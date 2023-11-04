@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
+import 'package:sample_app/screens/coach/trainedUsers.dart';
 
 import '../../models/coach.dart';
 import '../../models/viewCoachSalary.dart';
@@ -58,11 +59,9 @@ Future<List<Coach>> _loadCoaches(List<String> coachIds) async {
         .collection('users')
         .doc(coachId)
         .get();
-
     if (snapshot.exists) {
       final Map<String, dynamic> data =
       snapshot.data() as Map<String, dynamic>;
-
       coaches.add(Coach(
         uid: snapshot.id,
         email: data['email'] ?? '',
@@ -442,18 +441,19 @@ Future<List<ViewCoachSalary>> _viewDetails() async {
                                                       context, MaterialPageRoute(builder: (context) => CoachSalary()));
                                                 },
                                               ),
+
                                             ],
                                           ),
                                         ),
                                       );
                                     },
                                   ),
+
                                 );
 
                               }
                             },
                           ),
-
 
                                      ],
                                    ),

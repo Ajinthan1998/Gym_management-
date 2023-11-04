@@ -358,7 +358,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
+            SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff9b1616),
+              ),
+              child: Text("Select Your Coach Here",
+              style: TextStyle(
+                 fontSize: 20,
+               ),),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CoachSelectionScreen()));
+              },
+            ),
             SizedBox(height: 20),
             Text(
               'Reviews',
@@ -554,18 +569,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             Review(currentUser: currentUser),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-              ),
-              child: Text("Select coach"),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CoachSelectionScreen()));
-              },
-            ),
+
             //     Container(
             //     child: SingleChildScrollView(
             //       scrollDirection: Axis.horizontal,

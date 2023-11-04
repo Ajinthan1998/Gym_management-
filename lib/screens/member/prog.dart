@@ -45,7 +45,7 @@ class ChartScreen extends StatelessWidget {
                 : double.tryParse(doc['value']) ?? 0.0;
 
             // to show last two days' bmi
-            if (date.isAfter(currentDate.subtract(Duration(days: 10)))) {
+            if (date.isAfter(currentDate.subtract(Duration(days: 30)))) {
               bmiData.add(BMIRecord(date: date, bmi: bmi));
             }
           });
