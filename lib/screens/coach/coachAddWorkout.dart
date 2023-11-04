@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -25,7 +24,7 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
 
   FirebaseStorage storage = FirebaseStorage.instance;
   CollectionReference imageCollection =
-      FirebaseFirestore.instance.collection('workouts');
+  FirebaseFirestore.instance.collection('workouts');
 
   XFile? pickedImageFile;
   File? pickedVideoFile;
@@ -79,13 +78,13 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
       String imagePath = 'workouts/$fileName';
 
       await storage.ref().child(imagePath).putFile(
-            imageFile,
-            SettableMetadata(
-              customMetadata: {
-                'uploaded_by': 'coach..',
-              },
-            ),
-          );
+        imageFile,
+        SettableMetadata(
+          customMetadata: {
+            'uploaded_by': 'coach..',
+          },
+        ),
+      );
 
       imageUrl = await storage.ref().child(imagePath).getDownloadURL();
     }
@@ -96,13 +95,13 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
       String videoPath = 'workouts/$fileName';
 
       await storage.ref().child(videoPath).putFile(
-            videoFile,
-            SettableMetadata(
-              customMetadata: {
-                'uploaded_by': 'coach..',
-              },
-            ),
-          );
+        videoFile,
+        SettableMetadata(
+          customMetadata: {
+            'uploaded_by': 'coach..',
+          },
+        ),
+      );
 
       videoUrl = await storage.ref().child(videoPath).getDownloadURL();
     }
@@ -171,146 +170,176 @@ class _CoachAddWorkoutState extends State<CoachAddWorkout> {
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.only(left: 55, right: 55),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: height * 0.05),
-            TextFormField(
-              controller: _nameTextController,
-              decoration: InputDecoration(
-                labelText: "Name",
-                labelStyle: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(0.0),
-                      child: const Text(
-                        "Category",
-                        style: TextStyle(
-                            fontSize: 25, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    DropdownButton(
-                      hint: const Text("Select Category"),
-                      icon: const Icon(Icons.arrow_drop_down),
-                      iconSize: 20,
-                      isExpanded: false,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                      ),
-                      value: valueChoose,
-                      onChanged: (value) {
-                        setState(() {
-                          valueChoose = value as String?;
-                          _categoryController.text = valueChoose ?? '';
-                        });
-                      },
-                      items: listItem.map((valueItem) {
-                        return DropdownMenuItem(
-                          value: valueItem,
-                          child: Text(valueItem),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                )
-              ],
-            ),
-            TextFormField(
-              controller: _durationController,
-              decoration: InputDecoration(
-                labelText: "Workout duration(seconds)",
-                labelStyle:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            TextFormField(
-              controller: _restTimeController,
-              decoration: InputDecoration(
-                labelText: "Rest time(seconds)",
-                labelStyle:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            TextFormField(
-              controller: _instructionTextController,
-              decoration: InputDecoration(
-                labelText: "Give the Instruction",
-                labelStyle:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white38,
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.only(left: 55, right: 55),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: height * 0.05),
+              TextFormField(
+                controller: _nameTextController,
+                decoration: InputDecoration(
+                  labelText: "Name",
+                  labelStyle: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                  onPressed: () async {
-                    await _pickImage();
-                  },
-                  icon: const Icon(Icons.photo_library_sharp),
-                  label: const Text('Pick Picture'),
-                ),
-                Column(
-                  children: [
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white38,
+                  focusedBorder: const OutlineInputBorder(
+                         borderSide: BorderSide(width: 2, color: Colors.white70),
                       ),
-                      onPressed: () async {
-                        await _pickVideo();
-                        videoController =
-                            VideoPlayerController.file(pickedVideoFile!)
-                              ..initialize().then((_) {
-                                setState(() {});
-                              });
-                      },
-                      icon: const Icon(Icons.video_library_sharp),
-                      label: const Text('Pick Video'),
-                    ),
-                    // if (videoController != null &&
-                    //     videoController!.value.isInitialized)
-                    //   AspectRatio(
-                    //     aspectRatio: videoController!.value.aspectRatio,
-                    //     child: VideoPlayer(videoController!),
-                    //   ),
-                  ],
-                ),
-              ],
-            ),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff9b1616),
-                  ),
-                  onPressed: () {
-                    _upload();
-                  },
-                  child: const Text('Save'),
                 ),
               ),
-            ),
-          ],
+              Row(
+                children: [
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right:50.0, top:3.0),
+                        child: const Text(
+                          "Category",
+                          style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      DropdownButton(
+                        hint: const Text("Select Category"),
+                        icon: const Icon(Icons.arrow_drop_down),
+                        iconSize: 20,
+                        isExpanded: false,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                        value: valueChoose,
+                        onChanged: (value) {
+                          setState(() {
+                            valueChoose = value as String?;
+                            _categoryController.text = valueChoose ?? '';
+                          });
+                        },
+                        items: listItem.map((valueItem) {
+                          return DropdownMenuItem(
+                            value: valueItem,
+                            child: Text(valueItem, style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 20,
+                            ),),
+
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              TextFormField(
+                controller: _durationController,
+                decoration: InputDecoration(
+                  labelText: "Workout duration(seconds)",
+                  labelStyle: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(width: 2, color: Colors.white70),
+                  ),
+                ),
+              ),
+              TextFormField(
+                controller: _restTimeController,
+                decoration: InputDecoration(
+                  labelText: "Rest time(seconds)",
+                  labelStyle: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(width: 2, color: Colors.white70),
+                  ),
+                ),
+              ),
+              TextFormField(
+                controller: _instructionTextController,
+                decoration: InputDecoration(
+                  labelText: "Give the Instruction",
+                  labelStyle: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(width: 2, color: Colors.white70),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white38,
+                    ),
+                    onPressed: () async {
+                      await _pickImage();
+                    },
+                    icon: const Icon(Icons.photo_library_sharp),
+                    label: const Text('Pick Picture'),
+                  ),
+                  Column(
+                    children: [
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white38,
+                        ),
+                        onPressed: () async {
+                          await _pickVideo();
+                          videoController =
+                          VideoPlayerController.file(pickedVideoFile!)
+                            ..initialize().then((_) {
+                              setState(() {});
+                            });
+                        },
+                        icon: const Icon(Icons.video_library_sharp),
+                        label: const Text('Pick Video'),
+                      ),
+                      // if (videoController != null &&
+                      //     videoController!.value.isInitialized)
+                      //   AspectRatio(
+                      //     aspectRatio: videoController!.value.aspectRatio,
+                      //     child: VideoPlayer(videoController!),
+                      //   ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xff9b1616),
+                    ),
+                    onPressed: () {
+                      _upload();
+                    },
+                    child: const Text('Save'),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

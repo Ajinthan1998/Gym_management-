@@ -25,8 +25,9 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
         .get();
 
     setState(() {
-      coachNames =
-          usersSnapshot.docs.map((doc) => doc['username'] as String).toList();
+      coachNames = usersSnapshot.docs
+          .map((doc) => doc['username'] as String)
+          .toList();
     });
 
     print('Available Coach Names: $coachNames');
@@ -39,8 +40,7 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
           .get()
           .then((userDoc) {
         if (userDoc.exists) {
-          Map<String, dynamic> userData =
-              userDoc.data() as Map<String, dynamic>;
+          Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
           if (userData.containsKey('coachName')) {
             print('CoachName already exists for the current user.');
 
@@ -120,7 +120,6 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
       );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,7 +133,7 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Welcome to the Coach Selection Page',
+              'Welcome to the Coach Selection System',
               style: TextStyle(fontSize: 24),
             ),
             SizedBox(height: 16),
@@ -144,17 +143,15 @@ class _CoachSelectionScreenState extends State<CoachSelectionScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             if (!coachSelected)
-              ...coachNames
-                  .map(
+              ...coachNames.map(
                     (name) => RadioListTile<String>(
-                      activeColor: Colors.white70,
-                      title: Text(name),
+                      activeColor:Colors.white70,
+                  title: Text(name),
                       value: name,
                       groupValue: selectedCoach,
                       onChanged: _handleRadioValueChanged,
-                    ),
-                  )
-                  .toList(),
+                ),
+              ).toList(),
             SizedBox(height: 16),
             ElevatedButton(
               style: ElevatedButton.styleFrom(

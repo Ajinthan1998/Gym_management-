@@ -32,10 +32,18 @@ class _ReceptionistScreenState extends State<ReceptionistScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // theme: ThemeData(),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+      ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text("JK Receptionist"),
+          leading: Image.asset(
+            'assets/images/jk fitness.jpg',
+            width: 40, // Adjust the size as needed
+          ),
+
+          backgroundColor: Colors.white12,
           actions: [
             IconButton(
                 onPressed: () {
@@ -44,7 +52,6 @@ class _ReceptionistScreenState extends State<ReceptionistScreen> {
                 },
                 icon: Icon(Icons.qr_code))
           ],
-          backgroundColor: Colors.black,
         ),
         body: Center(
           child: IndexedStack(
@@ -158,6 +165,9 @@ class _ReceptionistProfileScreenState extends State<ReceptionistProfileScreen> {
             style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xff9b1616),
+            ),
             child: Text("Logout"),
             onPressed: () {
               FirebaseAuth.instance.signOut().then((value) {

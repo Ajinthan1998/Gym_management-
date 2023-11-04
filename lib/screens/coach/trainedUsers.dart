@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
+import '../member/profile_screen.dart';
+import '../recpetionist/viewDetails.dart';
 import 'coachCheckProgress.dart';
 
 class TrainingPage extends StatefulWidget {
@@ -26,6 +28,7 @@ class _TrainingPageState extends State<TrainingPage> {
     _loadUsernames();
   }
 
+
   Future<void> _loadUsernames() async {
     QuerySnapshot usersSnapshot = await firestore.collection('users').get();
     for (QueryDocumentSnapshot userDoc in usersSnapshot.docs) {
@@ -40,83 +43,137 @@ class _TrainingPageState extends State<TrainingPage> {
   Widget build(BuildContext context) {
     int trainedUsersTodayCount = 0;
     return Scaffold(
-        body: StreamBuilder<DocumentSnapshot>(
-      stream: firestore.collection('users').doc(uid).snapshots(),
-      builder: (context, userSnapshot) {
-        if (!userSnapshot.hasData || usernames.isEmpty) {
-          return CircularProgressIndicator();
-        }
+      body:StreamBuilder<DocumentSnapshot>(
+        stream: firestore.collection('users').doc(uid).snapshots(),
+        builder: (context, userSnapshot) {
+          if (!userSnapshot.hasData || usernames.isEmpty) {
+            return CircularProgressIndicator();
+          }
 
-        List<dynamic> trainedUsers = userSnapshot.data!['trainedUsers'] ?? [];
+          List<dynamic> trainedUsers = userSnapshot.data!['trainedUsers'] ?? [];
 
-        return StreamBuilder<DocumentSnapshot>(
-          stream: firestore
-              .collection('users')
-              .doc(uid)
-              .collection('attendance')
-              .doc(currentDate)
-              .snapshots(),
-          builder: (context, attendanceSnapshot) {
-            if (!attendanceSnapshot.hasData) {
-              return CircularProgressIndicator();
-            }
-            Map<String, dynamic>? attendanceData =
-                attendanceSnapshot.data?.data() as Map<String, dynamic>?;
-            List<dynamic>? trainedUsersToday = attendanceData?[
-                'trainedUsersToday']; // print('trainedUsersTOday: $trainedUsersToday');
-            return ListView.builder(
-              itemCount: trainedUsers.length,
-              itemBuilder: (context, index) {
-                String userUID = trainedUsers[index];
-                String username = usernames[userUID] ?? 'Unknown User';
-                bool isChecked = trainedUsersToday?.contains(userUID) ?? false;
-                trainedUsersTodayCount = trainedUsersToday?.length ?? 0;
-                return ListTile(
-                  title: Row(
-                    children: [
-                      Text(username),
-                      SizedBox(width: 100),
-                      Checkbox(
-                        checkColor: Colors.black,
-                        activeColor: Colors.white70,
-                        value: isChecked,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            if (value == true) {
-                              markUserAsTrained(
-                                  userUID, trainedUsersTodayCount);
-                            } else {
-                              removeUserFromTrained(
-                                  userUID, trainedUsersTodayCount);
-                            }
-                          });
-                        },
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff9b1616),
+          return StreamBuilder<DocumentSnapshot>(
+            stream: firestore.collection('users').doc(uid).collection('attendance').doc(currentDate).snapshots(),
+            builder: (context, attendanceSnapshot) {
+              if (!attendanceSnapshot.hasData) {
+                return CircularProgressIndicator();
+              }
+              Map<String, dynamic>? attendanceData = attendanceSnapshot.data?.data() as Map<String, dynamic>?;
+              List<dynamic>? trainedUsersToday = attendanceData?['trainedUsersToday'];              // print('trainedUsersTOday: $trainedUsersToday');
+              return ListView.builder(
+                itemCount: trainedUsers.length,
+                itemBuilder: (context, index) {
+                  String userUID = trainedUsers[index];
+                  String username = usernames[userUID] ?? 'Unknown User';
+                  bool isChecked = trainedUsersToday?.contains(userUID) ?? false ;
+                  trainedUsersTodayCount = trainedUsersToday?.length ?? 0;                 return ListTile(
+                    // title: Row(
+                    //   children: [
+                    //     Text(username),
+                    //     SizedBox(width: 140),
+                    //     Checkbox(
+                    //       checkColor: Colors.black,
+                    //       activeColor: Colors.white70,
+                    //       value: isChecked,
+                    //       onChanged: (bool? value) {
+                    //         setState(() {
+                    //           if (value == true) {
+                    //             markUserAsTrained(userUID, trainedUsersTodayCount);
+                    //
+                    //           } else {
+                    //             removeUserFromTrained(userUID, trainedUsersTodayCount);
+                    //           }
+                    //         });
+                    //       },
+                    //     ),
+                    //     // ElevatedButton(
+                    //     //   style: ElevatedButton.styleFrom(
+                    //     //     backgroundColor: Color(0xff9b1616),
+                    //     //   ),
+                    //     //   child: Text("View Progress"),
+                    //     //   onPressed: () {
+                    //     //
+                    //     //     Navigator.push(
+                    //     //         context, MaterialPageRoute(builder: (context) => CoachCheckProg()));
+                    //     //   },
+                    //     // ),
+                    //   ],
+                    // ),
+                    title: Table(
+                      children: [
+                        TableRow(
+                          children: [
+                            TableCell(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top:12.0,left: 4.0),
+                                child: Text(username),
+                              ),
+                            ),
+                            TableCell(
+                                child: Checkbox(
+                                  checkColor: Colors.black,
+                                  activeColor: Colors.white70,
+                                  value: isChecked,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      if (value == true) {
+                                        markUserAsTrained(userUID, trainedUsersTodayCount);
+                                      } else {
+                                        removeUserFromTrained(userUID, trainedUsersTodayCount);
+                                      }
+                                    });
+                                  },
+                                ),
+                              ),
+                            TableCell(
+                              child: Center(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xff9b1616),
+                                  ),
+                                  child: Text("Progress"),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => CoachCheckProg(uid: userUID, username: username)),
+                                    );
+                                  },
+                                 ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Center(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xff9b1616),
+                                  ),
+                                  child: Text("Details"),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => ViewDetails(uid: userUID)),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        child: Text("View Progress"),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CoachCheckProg(
-                                      uid: userUID, username: username)));
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    ));
+                      ],
+                    ),
+
+                  );
+                },
+              );
+            },
+          );
+        },
+      )
+    );
   }
 
   void markUserAsTrained(String userUID, int trainedUsersTodayCount) async {
+
     try {
       final userDocRef = FirebaseFirestore.instance
           .collection('users')
@@ -126,9 +183,10 @@ class _TrainingPageState extends State<TrainingPage> {
 
       await userDocRef.update({
         'trainedUsersToday': FieldValue.arrayUnion([userUID]),
-        'trainedUsersCount': trainedUsersTodayCount + 1,
+        'trainedUsersCount':trainedUsersTodayCount+1,
       });
       print('User marked as trained: $userUID');
+
     } catch (e) {
       print('Error marking user as trained: $e');
     }
@@ -144,7 +202,7 @@ class _TrainingPageState extends State<TrainingPage> {
 
       await userDocRef.update({
         'trainedUsersToday': FieldValue.arrayRemove([userUID]),
-        'trainedUsersCount': trainedUsersTodayCount - 1,
+        'trainedUsersCount':trainedUsersTodayCount-1,
       });
 
       print('User removed from trained: $userUID');
@@ -152,4 +210,5 @@ class _TrainingPageState extends State<TrainingPage> {
       print('Error removing user from trained: $e');
     }
   }
+
 }

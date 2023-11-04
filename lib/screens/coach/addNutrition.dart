@@ -84,7 +84,7 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   DropdownButtonFormField<String>(
                     value: _foodTime,
                     decoration: InputDecoration(
-                      labelText: 'Food Time',
+                        labelText: 'Food Time',
                       labelStyle: TextStyle(
                         color: Colors.white70,
                         fontSize: 25,
@@ -113,8 +113,7 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   ),
                   TextFormField(
                     controller: _foodController,
-                    decoration: InputDecoration(
-                      labelText: 'Food',
+                    decoration: InputDecoration(labelText: 'Food',
                       labelStyle: TextStyle(
                         color: Colors.white70,
                         fontSize: 20,
@@ -132,8 +131,7 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   ),
                   DropdownButtonFormField<String>(
                     value: _day,
-                    decoration: InputDecoration(
-                      labelText: 'Day',
+                    decoration: InputDecoration(labelText: 'Day',
                       labelStyle: TextStyle(
                         color: Colors.white70,
                         fontSize: 20,
@@ -162,8 +160,7 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   ),
                   DropdownButtonFormField<String>(
                     value: _category,
-                    decoration: InputDecoration(
-                      labelText: 'Category',
+                    decoration: InputDecoration(labelText: 'Category',
                       labelStyle: TextStyle(
                         color: Colors.white70,
                         fontSize: 20,
@@ -192,8 +189,7 @@ class _AddNutritionItemFormState extends State<AddNutritionItemForm> {
                   ),
                   TextFormField(
                     controller: _caloriesController,
-                    decoration: InputDecoration(
-                      labelText: 'Calories',
+                    decoration: InputDecoration(labelText: 'Calories',
                       labelStyle: TextStyle(
                         color: Colors.white70,
                         fontSize: 20,

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:sample_app/screens/coach/trainedUsers.dart';
 
 import '../qr_screen.dart';
 import '../signin.dart';
@@ -52,7 +53,7 @@ class _CoachScreenState extends State<CoachScreen> {
             width: 40, // Adjust the size as needed
           ),
           // title: Text("JK Fitness"),
-          backgroundColor: Colors.white12,
+          backgroundColor: Colors.black,
           actions: [
             IconButton(
                 onPressed: () {
@@ -95,7 +96,7 @@ class _CoachScreenState extends State<CoachScreen> {
                 ),
                 GButton(
                   icon: Icons.bar_chart,
-                  text: "Progress",
+                  text: "Mark",
                 ),
                 GButton(
                   icon: Icons.person,

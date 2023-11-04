@@ -31,8 +31,7 @@ class _PackageDetailsPageState extends State<PackageDetailsPage> {
     return mediaFiles;
   }
 
-  Future<void> addPackageToFirestore(
-      String packageName, String userUID, String s) async {
+  Future<void> addPackageToFirestore(String packageName, String userUID, String s) async {
     final CollectionReference usersRef =
         FirebaseFirestore.instance.collection('users');
 
@@ -43,7 +42,7 @@ class _PackageDetailsPageState extends State<PackageDetailsPage> {
       if (userData['PackageName'] == null) {
         await usersRef.doc(userUID).update({
           'PackageName': packageName,
-          'SelectedCategory': selectedCategory,
+          'SelectedCategory' :selectedCategory,
         });
         print('Package added successfully to the user document!');
       } else {
@@ -66,6 +65,7 @@ class _PackageDetailsPageState extends State<PackageDetailsPage> {
   }
 
   Widget build(BuildContext context) {
+
     String currentUserUID = getCurrentUserUID();
     return Scaffold(
       appBar: AppBar(
@@ -104,13 +104,11 @@ class _PackageDetailsPageState extends State<PackageDetailsPage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       SizedBox(height: 10),
-                                      Text(
-                                          'Description: ${media['description']}'),
+                                      Text('Description: ${media['description']}'),
                                       SizedBox(height: 10),
                                       Text('Price: Rs  ${media['price']} .00'),
                                       SizedBox(height: 10),
-                                      Text(
-                                          'Duration: ${media['duration']} Month'),
+                                      Text('Duration: ${media['duration']} Month'),
                                     ],
                                   ),
                                 ),
@@ -119,7 +117,7 @@ class _PackageDetailsPageState extends State<PackageDetailsPage> {
                               Row(
                                 children: [
                                   Radio<String>(
-                                    activeColor: Colors.white70,
+                                    activeColor:Colors.white70,
                                     value: 'Weight Gain',
                                     groupValue: selectedCategory,
                                     onChanged: (value) {
@@ -130,7 +128,7 @@ class _PackageDetailsPageState extends State<PackageDetailsPage> {
                                   ),
                                   Text('Weight Gain'),
                                   Radio<String>(
-                                    activeColor: Colors.white70,
+                                    activeColor:Colors.white70,
                                     value: 'Weight Loss',
                                     groupValue: selectedCategory,
                                     onChanged: (value) {
@@ -148,8 +146,10 @@ class _PackageDetailsPageState extends State<PackageDetailsPage> {
                                 ),
                                 onPressed: () {
                                   if (selectedCategory != null) {
-                                    addPackageToFirestore(media['packageName'],
-                                        currentUserUID, selectedCategory!);
+                                    addPackageToFirestore(
+                                        media['packageName'],
+                                        currentUserUID,
+                                        selectedCategory!);
                                   }
                                 },
                                 child: Text('Add Package'),

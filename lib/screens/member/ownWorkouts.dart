@@ -113,7 +113,7 @@ class OwnWorkouts extends StatelessWidget {
           false,
           context,
           media[
-              'fileName'], // You may want to use a unique identifier for the heroTag
+          'fileName'], // You may want to use a unique identifier for the heroTag
         ));
       }
     }
@@ -121,14 +121,14 @@ class OwnWorkouts extends StatelessWidget {
   }
 
   Widget _buildCard(
-    String name,
-    String imgPath,
-    String cat,
-    String instruction,
-    bool isFavourite,
-    context,
-    String heroTag,
-  ) {
+      String name,
+      String imgPath,
+      String cat,
+      String instruction,
+      bool isFavourite,
+      context,
+      String heroTag,
+      ) {
     final isVideo = imgPath.contains('.mp4?') ? true : false;
 
     return Padding(
@@ -161,23 +161,23 @@ class OwnWorkouts extends StatelessWidget {
                     scrollDirection: Axis.vertical,
                     child: AspectRatio(
                       aspectRatio:
-                          16 / 9, // Change this ratio based on your requirement
+                      16 / 9, // Change this ratio based on your requirement
                       child: isVideo
                           ? Chewie(
-                              controller: ChewieController(
-                                videoPlayerController:
-                                    VideoPlayerController.network(imgPath),
-                                autoPlay: false,
-                                autoInitialize: false,
-                                looping: false,
-                                allowedScreenSleep: false,
-                                showControls: true,
-                              ),
-                            )
+                        controller: ChewieController(
+                          videoPlayerController:
+                          VideoPlayerController.network(imgPath),
+                          autoPlay: false,
+                          autoInitialize: false,
+                          looping: false,
+                          allowedScreenSleep: false,
+                          showControls: true,
+                        ),
+                      )
                           : Image.network(
-                              imgPath,
-                              fit: BoxFit.contain,
-                            ),
+                        imgPath,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),

@@ -19,6 +19,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? address;
   String? medical_issues;
   String? imageUrl;
+  int? level;
 
   @override
   void initState() {
@@ -31,10 +32,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       uid = currentUser.uid;
-
-      // Fetch user data from Firestore based on UID
       final userSnapshot =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
       if (userSnapshot.exists) {
         final data = userSnapshot.data();
@@ -44,9 +43,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             username = data['username'];
             phone_no = data['phone_no'];
             address = data['address'];
-            address = data['address'];
             medical_issues = data['medical_issues'];
             imageUrl = data['imageUrl'];
+            if (data.containsKey('level')) {
+              level = data['level'];
+            } else {
+              level = null;
+            }
           });
         }
       }
@@ -80,16 +83,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'Phone number: ${phone_no ?? "N/A"}',
             style: TextStyle(fontSize: 15),
           ),
-          const SizedBox(height: 20),
+
+
+        const SizedBox(height: 20),
           Text(
             'Address: ${address ?? "N/A"}',
             style: TextStyle(fontSize: 15),
           ),
-          const SizedBox(height: 20),
-          Text(
-            'Medical issues: ${medical_issues ?? "N/A"}',
-            style: TextStyle(fontSize: 15),
-          ),
+          const SizedBox(height: 50),
+        // Display user level if it's set
+            Text(
+              'Level: $level',
+              style: TextStyle(fontSize: 15),
+            ),
           const SizedBox(height: 50),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
