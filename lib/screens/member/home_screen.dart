@@ -13,6 +13,7 @@ import 'package:sample_app/screens/member/reviewScreen.dart';
 import '../../models/coach.dart';
 import '../../models/review.dart';
 import '../../models/PackageBox.dart';
+import '../../utils/sharedPrefencesUtil.dart';
 import 'PackageDetails.dart';
 import 'availablepackages.dart';
 
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? username;
   String? imageUrl;
   Stream<int>? attendanceCountStream;
+  String currentDate = DateTime.now().toString().split(' ')[0];
   late Stream<List<Object>> availablecoachStream;
   List<String> usernames = [];
 
@@ -54,6 +56,28 @@ class _HomeScreenState extends State<HomeScreen> {
         data = (event.snapshot.value as List<dynamic>).cast<Object>();
       }
       return data;
+    });
+  }
+
+  Future<void> acceptChallenge(String challenge, String duration) async {
+    String id = await SharedPreferencesUtil.getUser() ?? '';
+    FirebaseFirestore.instance.collection('users').doc(id).update({
+      'challengeName': challenge,
+      'challengeAcceptedDate': currentDate,
+      'remainingDays': duration,
+    }).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Challenge added successfully.'),
+        ),
+      );
+    }).catchError((error) {
+      // Handle any errors that occur during Firestore interaction
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $error'),
+        ),
+      );
     });
   }
 
@@ -154,7 +178,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             StreamBuilder<int>(
               stream: attendanceCountStream,
               builder: (context, snapshot) {
@@ -363,16 +386,70 @@ class _HomeScreenState extends State<HomeScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff9b1616),
               ),
-              child: Text("Select Your Coach Here",
-              style: TextStyle(
-                 fontSize: 20,
-               ),),
+              child: Text(
+                "Select Your Coach Here",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
               onPressed: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => CoachSelectionScreen()));
               },
+            ),
+            SizedBox(height: 20),
+            Container(
+              width: 300.0,
+              color: Colors.white10,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: FutureBuilder<QuerySnapshot>(
+                    future: FirebaseFirestore.instance
+                        .collection('challenges')
+                        .orderBy('starting', descending: true)
+                        .limit(1)
+                        .get(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      }
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return Text('No challenges found');
+                      }
+                      var challengeData = snapshot.data!.docs.first.data()
+                          as Map<String, dynamic>;
+
+                      // Now you can use challengeData to display the challenge details
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              'Challenge Name: ${challengeData['challengeName']}'),
+                          Text('Duration: ${challengeData['duration']}'),
+                          Text('Starting Date: ${challengeData['starting']}'),
+                          Text('Ending Date: ${challengeData['ending']}'),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xff9b1616),
+                            ),
+                            onPressed: () {
+                              acceptChallenge(challengeData['challengeName'],
+                                  challengeData['duration']);
+                            },
+                            child: Text('Accept Challenge'),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
             SizedBox(height: 20),
             Text(
@@ -569,73 +646,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             Review(currentUser: currentUser),
-
-            //     Container(
-            //     child: SingleChildScrollView(
-            //       scrollDirection: Axis.horizontal,
-            //       child: Container(
-            //
-            //         child: ElevatedButton(
-            //           onPressed: () {
-            //             MaterialPageRoute(
-            //               builder: (context) => PackageDetailsPage(packageId: '', duration: ,),
-            //             );
-            //           },
-            //           child: Column(
-            //             children: [
-            //               Container(
-            //                 child: Row(
-            //                   children: [
-            //                     AvailablePackagePage(duration:"1 Month",packageId: "package1",color: Colors.purple,),
-            //                     AvailablePackagePage(duration:"3 Month",packageId: "package1",color: Colors.blue,),
-            //                     AvailablePackagePage(duration:"4 Month",packageId: "package2",color: Colors.green,),
-            //                     AvailablePackagePage(duration:"6 Month",packageId: "package3",color: Colors.red,),
-            //                   ],
-            //                 ),
-            //               ),
-            //             ],
-            //           ),
-            //         ),
-            //       ),
-            //
-            //     ),
-            // ),
-            //        InkWell(
-            //         onTap: () {
-            //     // Navigate to the available package page
-            //     Navigator.push(
-            //     context,
-            //     MaterialPageRoute(builder: (context) => AvailablePackagePage()),
-            //   );
-            // },
-            //           child: Container(
-            //             width: 120,
-            //             height: 120,
-            //               decoration: BoxDecoration(
-            //               color: Colors.red,
-            //               borderRadius: BorderRadius.circular(10),
-            //               ),
-            //           child: Column(
-            //             mainAxisAlignment: MainAxisAlignment.center,
-            //             children: [
-            //               Icon(
-            //               Icons.wallet_giftcard,
-            //               size: 50,
-            //               color: Colors.white,
-            //               ),
-            //           SizedBox(height: 10),
-            //             Text(
-            //             'Packages',
-            //               style: TextStyle(
-            //               color: Colors.white,
-            //               fontSize: 16,
-            //               fontWeight: FontWeight.bold,
-            //               ),
-            //             ),
-            //           ],
-            //           ),
-            //           ),
-            //           ),
           ],
         ),
       ),

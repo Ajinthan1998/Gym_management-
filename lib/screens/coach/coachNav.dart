@@ -11,6 +11,7 @@ import 'coachCheckProgress.dart';
 import 'coachHomeScreen.dart';
 import 'coachProfileScreen.dart';
 import 'coachSalary.dart';
+import 'trainedUsers.dart';
 
 class CoachScreen extends StatefulWidget {
   const CoachScreen({Key? key}) : super(key: key);
@@ -111,9 +112,3 @@ class _CoachScreenState extends State<CoachScreen> {
     );
   }
 }
-
-
-
-
-
-

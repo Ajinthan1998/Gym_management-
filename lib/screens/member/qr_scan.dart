@@ -6,8 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
-
-import '../recpetionist/viewDetails.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../utils/constants.dart';
+import '../../utils/sharedPrefencesUtil.dart';
 
 class QRScan extends StatefulWidget {
   const QRScan({super.key});
@@ -23,16 +25,20 @@ class CoachInfo {
   CoachInfo(this.name, this.imagePath);
 }
 
-
 class _QRScanState extends State<QRScan> {
   String role = "";
   int? userLevel;
+  String? username;
+  String? token;
+  bool? hasToPay;
+  String? acceptedChallenge;
   String currentDate = DateTime.now().toString().split(' ')[0];
   String currentTime =
       DateTime.now().toLocal().toString().split(' ')[1].substring(0, 5);
   final GlobalKey qrKey = GlobalKey(debugLabel: "QR");
   QRViewController? controller;
   String result = "";
+  bool hasToRemind = false;
 
   Map<String, int> extractTimeComponents(String timeString) {
     List<String> timeParts = timeString.split(':');
@@ -43,20 +49,155 @@ class _QRScanState extends State<QRScan> {
     };
   }
 
-  Future<void> _calculateUserLevel() async {
+  void clrQrResult() {
+    setState(() {
+      result = '';
+    });
+  }
 
+  Future<int> isChallengeAccepted() async {
+    int remainingDays = 0;
+    print('sample print');
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(result)
+          .get();
+
+      acceptedChallenge = userDoc.data()!['challengeName'];
+      print('acceptedChallenge $acceptedChallenge');
+
+      QuerySnapshot<Map<String, dynamic>> challengeSnapshot =
+          await FirebaseFirestore.instance
+              .collection('challenges')
+              .where('challengeName', isEqualTo: acceptedChallenge)
+              .get();
+
+      if (challengeSnapshot.docs.isNotEmpty && acceptedChallenge != null) {
+        Map<String, dynamic> data = challengeSnapshot.docs[0].data();
+
+        DateTime endingDate = DateTime.parse(data['ending']);
+        DateTime today = DateTime.parse(currentDate);
+        Duration duration = endingDate.difference(today);
+        remainingDays = duration.inDays;
+
+        print('Remaining: $remainingDays');
+        return remainingDays;
+      } else {
+        print('No documents found matching the query.');
+      }
+
+      print('Payment $hasToRemind');
+      print('Payment $currentDate');
+
+      return remainingDays;
+    } catch (e) {
+      print('Error checking subscription status: $e');
+      // Handle the error as needed
+      return remainingDays;
+    }
+  }
+
+  Future<bool> isAnySubscriptionExpired() async {
+    bool hasToPay = false;
+    try {
+      QuerySnapshot<Map<String, dynamic>> paymentSnapshot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(result)
+              .collection('paymentDetails')
+              .orderBy('expireDate', descending: true)
+              .limit(1)
+              .get();
+
+      if (paymentSnapshot.docs.isNotEmpty) {
+        // Access the first document's data (since you used limit(1))
+        Map<String, dynamic> data = paymentSnapshot.docs[0].data();
+
+        // Access the 'expireDate' field
+        dynamic expireDate = data['expireDate'];
+        if (expireDate.compareTo(currentDate) > 0) {
+          hasToPay = false;
+        } else {
+          hasToPay = true;
+        }
+
+        // Print the 'expireDate' field
+        print('Expire Date: $expireDate');
+      } else {
+        // Handle the case where no documents match the query
+        print('No documents found matching the query.');
+      }
+
+      print('Payment $hasToPay');
+      print('Payment $currentDate');
+
+      return hasToPay;
+    } catch (e) {
+      print('Error checking subscription status: $e');
+      // Handle the error as needed
+      return false;
+    }
+  }
+
+  Future<bool> pushNotificationsSpecificDevice(
+      String uid, String title, bool notify) async {
+    final CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('users');
+    DocumentSnapshot userSnapshot;
+
+    try {
+      userSnapshot = await usersCollection.doc(uid).get();
+    } catch (error) {
+      // Handle the error (e.g., user not found)
+      return false;
+    }
+
+    // bool anySubscriptionExpired = await isAnySubscriptionExpired();
+
+    if (userSnapshot.exists && notify) {
+      role = userSnapshot.get('role');
+      username = userSnapshot.get('username');
+      token = userSnapshot.get('pushToken');
+
+      // Construct the notification data
+      String dataNotifications = '{ "to" : "$token",'
+          ' "notification" : {'
+          ' "title":"JK Fitness",'
+          '"body":"Hi $username !!, $title"'
+          ' }'
+          ' }';
+
+      // Send the notification using http.post
+      await http.post(
+        Uri.parse(Constants.BASE_URL),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': 'key= ${Constants.KEY_SERVER}',
+        },
+        body: dataNotifications,
+      );
+
+      return true;
+    } else {
+      // Handle the case where the user document does not exist
+      return false;
+    }
+  }
+
+  Future<void> _calculateUserLevel() async {
     final CollectionReference<Map<String, dynamic>> attendanceCollectionRef =
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(result)
-        .collection('attendance');
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(result)
+            .collection('attendance');
 
     final QuerySnapshot<Map<String, dynamic>> attendanceQuerySnapshot =
-    await attendanceCollectionRef.get();
+        await attendanceCollectionRef.get();
 
     final int attendanceCount = attendanceQuerySnapshot.size;
 
-    int calculatedUserLevel =0;
+    int calculatedUserLevel = 0;
 
     calculatedUserLevel = attendanceCount ~/ 5;
 
@@ -69,7 +210,6 @@ class _QRScanState extends State<QRScan> {
     setState(() {
       userLevel = calculatedUserLevel;
     });
-
 
     print('Attendance Count: $attendanceCount');
   }
@@ -208,8 +348,12 @@ class _QRScanState extends State<QRScan> {
       DocumentReference userDoc = usersCollection.doc(result);
       userDoc.get().then((userSnapshot) async {
         role = userSnapshot.get('role');
+        username = userSnapshot.get('username');
+        token = userSnapshot.get('pushToken');
 
         print('Role name :$role');
+        print('Role name :$username');
+        print('Role name :$token');
 
         DocumentReference attendanceDoc =
             userDoc.collection('attendance').doc(currentDate);
@@ -355,34 +499,33 @@ class _QRScanState extends State<QRScan> {
           bool isAvailable = attendanceData.isNotEmpty &&
               attendanceData.last['outtime'] == null;
 
-            await attendanceDoc.set({
-              'date': currentDate,
-              'availability': isAvailable ? "Yes" : "No",
-              'attendance_data': attendanceData,
-            }, SetOptions(merge: true)).then((_) {
-              print('Attendance document created/updated successfully');
-            }).catchError((error) {
-              print('Failed to create/update attendance document: $error');
-            });
+          await attendanceDoc.set({
+            'date': currentDate,
+            'availability': isAvailable ? "Yes" : "No",
+            'attendance_data': attendanceData,
+          }, SetOptions(merge: true)).then((_) {
+            print('Attendance document created/updated successfully');
+          }).catchError((error) {
+            print('Failed to create/update attendance document: $error');
+          });
 
-            Duration totalWorkingHours = calculateWorkingHours(attendanceData);
-            int hours = totalWorkingHours.inHours;
-            int minutes = totalWorkingHours.inMinutes % 60;
-            print(
-                'Total Working Hours: $hours:${minutes.toString().padLeft(2, '0')}');
+          Duration totalWorkingHours = calculateWorkingHours(attendanceData);
+          int hours = totalWorkingHours.inHours;
+          int minutes = totalWorkingHours.inMinutes % 60;
+          print(
+              'Total Working Hours: $hours:${minutes.toString().padLeft(2, '0')}');
 
-            // Duration totalWorkingHoursPerDay = calculateWorkingHours(attendanceData);
+          // Duration totalWorkingHoursPerDay = calculateWorkingHours(attendanceData);
 
-            // Update the 'totalWorkingHours' field in Firestore
-            await attendanceDoc.set({
-              'totalWorkingHours':
-                  '$hours:${minutes.toString().padLeft(2, '0')}', // Store the total minutes
-            }, SetOptions(merge: true)).then((_) {
-              print('Total working hours updated successfully');
-            }).catchError((error) {
-              print('Failed to update total working hours: $error');
-            });
-
+          // Update the 'totalWorkingHours' field in Firestore
+          await attendanceDoc.set({
+            'totalWorkingHours':
+                '$hours:${minutes.toString().padLeft(2, '0')}', // Store the total minutes
+          }, SetOptions(merge: true)).then((_) {
+            print('Total working hours updated successfully');
+          }).catchError((error) {
+            print('Failed to update total working hours: $error');
+          });
         } else if (role == 'user') {
           DocumentSnapshot attendanceSnapshot = await attendanceDoc.get();
           Map<String, dynamic>? attendanceData =
@@ -392,6 +535,8 @@ class _QRScanState extends State<QRScan> {
             // Check if 'intime' is already set, and only set it if it's not already present
             if (attendanceData['intime'] == null) {
               if (attendanceType == 'In') {
+                print('object');
+                print('object $token ------------------------------------');
                 await attendanceDoc.set({
                   'intime': currentTime,
                   'availability': "Yes",
@@ -406,10 +551,12 @@ class _QRScanState extends State<QRScan> {
               // Check if 'outtime' is already set, and only set it if it's not already present and 'intime' < 'outtime'
               if (attendanceData['outtime'] == null) {
                 if (attendanceType == 'Out') {
-                  DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(result);
+                  DocumentReference userDocRef = FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(result);
                   DocumentSnapshot userSnapshot = await userDocRef.get();
                   Map<String, dynamic>? userData =
-                  userSnapshot.data() as Map<String, dynamic>?;
+                      userSnapshot.data() as Map<String, dynamic>?;
 
                   if (userData != null && userData['categorySet'] != null) {
                     int currentCategorySet = userData['categorySet'];
@@ -531,18 +678,54 @@ class _QRScanState extends State<QRScan> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  // ElevatedButton(
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Colors.black,
+                  //   ),
+                  //   onPressed: () => pushNotificationsSpecificDevice(
+                  //     "$token",
+                  //     "JK payments",
+                  //     "$username",
+                  //   ),
+                  //   child: Text("notify"),
+                  // ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                     ),
-                    onPressed: () => handleButtonPress("In"),
+                    onPressed: () async {
+                      handleButtonPress("In");
+                      String uid = await SharedPreferencesUtil.getUser() ?? '';
+                      pushNotificationsSpecificDevice(
+                          result,
+                          "Your have to pay !!",
+                          await isAnySubscriptionExpired());
+                      pushNotificationsSpecificDevice(
+                          uid,
+                          "This member have to pay !!",
+                          await isAnySubscriptionExpired());
+                      int remainingDays = await isChallengeAccepted();
+                      print("days $remainingDays");
+                      if (remainingDays > 0) {
+                        hasToRemind = true;
+                        pushNotificationsSpecificDevice(
+                            result,
+                            "$remainingDays days to finished the challenge",
+                            hasToRemind);
+                      }
+
+                      clrQrResult();
+                    },
                     child: Text("In"),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                     ),
-                    onPressed: () => handleButtonPress("Out"),
+                    onPressed: () {
+                      handleButtonPress("Out");
+                      clrQrResult();
+                    },
                     child: Text("Out"),
                   ),
                   ElevatedButton(
@@ -550,10 +733,10 @@ class _QRScanState extends State<QRScan> {
                       backgroundColor: Colors.black,
                     ),
                     onPressed: () {
-                      Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => ViewDetails(
-                           uid : result,
-                      )));
+                      // Navigator.push(
+                      //     context, MaterialPageRoute(builder: (context) => ViewDetails(
+                      //   uid : result,
+                      // )));
                       // Navigator.of(context).push(
                       //   MaterialPageRoute(
                       //     builder: (context) => WorkoutDetail(

@@ -5,9 +5,10 @@ import 'package:video_player/video_player.dart';
 import '../../utils/sharedPrefencesUtil.dart';
 
 class WorkoutDetail extends StatelessWidget {
-  final assetPath, workoutName, instructions;
+  final assetPath, workoutName, instructions, restTime;
 
-  WorkoutDetail({this.assetPath, this.workoutName, this.instructions});
+  WorkoutDetail(
+      {this.assetPath, this.workoutName, this.instructions, this.restTime});
   @override
   Widget build(BuildContext context) {
     final isVideo = assetPath.contains('.mp4?') ? true : false;
@@ -64,6 +65,7 @@ class WorkoutDetail extends StatelessWidget {
               style: TextStyle(
                   color: Colors.white70, fontFamily: 'Varela', fontSize: 24.0)),
         ),
+
         SizedBox(height: 20.0),
         Center(
           child: Container(
@@ -71,53 +73,56 @@ class WorkoutDetail extends StatelessWidget {
             child: Text(instructions,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontFamily: 'Varela',
-                    fontSize: 16.0,
-                    color: Color(0xFFB4B8B9))),
+                  fontFamily: 'Varela',
+                  fontSize: 16.0,
+                )),
           ),
         ),
         SizedBox(height: 20.0),
-        ElevatedButton(
-            onPressed: () {
-              print(workoutName);
-            },
-            child: Text("Print")),
-        Center(
-            child: Container(
-                width: MediaQuery.of(context).size.width - 50.0,
-                height: 50.0,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25.0),
-                    color: Color(0xff9b1616)),
-                child: Center(
-                    child: Text(
-                  'Add to List',
-                  style: TextStyle(
-                      fontFamily: 'Varela',
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                )))),
-        Center(
-          child: FutureBuilder<String>(
-            future: SharedPreferencesUtil.getUser(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done &&
-                  snapshot.hasData) {
-                String username = snapshot.data!;
-                return Text('username: $username');
-              } else {
-                return CircularProgressIndicator();
-              }
-            },
-          ),
-        ),
+
+        // ElevatedButton(
+        //     onPressed: () {
+        //       print(workoutName);
+        //       Navigator.push(
+        //           context, Mcolor: Color(0xFFB4B8B9)aterialPageRoute(builder: (context) => TimerPage(restTime: int.parse(restTime))));
+        //     },
+        //     child: Text("Print")),
+        // Center(
+        //     child: Container(
+        //         width: MediaQuery.of(context).size.width - 50.0,
+        //         height: 50.0,
+        //         decoration: BoxDecoration(
+        //             borderRadius: BorderRadius.circular(25.0),
+        //             color: Color(0xff9b1616)),
+        //         child: Center(
+        //             child: Text(
+        //           'Add to List',
+        //           style: TextStyle(
+        //               fontFamily: 'Varela',
+        //               fontSize: 14.0,
+        //               fontWeight: FontWeight.bold,
+        //               color: Colors.white),
+        //         )))),
+        // Center(
+        //   child: FutureBuilder<String>(
+        //     future: SharedPreferencesUtil.getUser(),
+        //     builder: (context, snapshot) {
+        //       if (snapshot.connectionState == ConnectionState.done &&
+        //           snapshot.hasData) {
+        //         String username = snapshot.data!;
+        //         return Text('username: $username');
+        //       } else {
+        //         return CircularProgressIndicator();
+        //       }
+        //     },
+        //   ),
+        // ),
       ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Color(0xff9b1616),
-        child: Icon(Icons.sports_gymnastics),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {},
+      //   backgroundColor: Color(0xff9b1616),
+      //   child: Icon(Icons.sports_gymnastics),
+      // ),
     );
   }
 }

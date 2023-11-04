@@ -17,14 +17,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? email;
   String? phone_no;
   String? address;
+  String? medical_issues;
   String? imageUrl;
   int? level;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-    // _calculateUserLevel();// Load user data when the widget is created
+    _loadUserData(); // Load user data when the widget is created
   }
 
   // Method to load user data from Firebase Firestore
@@ -43,6 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             username = data['username'];
             phone_no = data['phone_no'];
             address = data['address'];
+            medical_issues = data['medical_issues'];
             imageUrl = data['imageUrl'];
             if (data.containsKey('level')) {
               level = data['level'];
@@ -54,42 +55,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
   }
-
-  // Future<void> _calculateUserLevel() async {
-  //
-  //   final CollectionReference<Map<String, dynamic>> attendanceCollectionRef =
-  //   FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(uid)
-  //       .collection('attendance');
-  //
-  //   final QuerySnapshot<Map<String, dynamic>> attendanceQuerySnapshot =
-  //   await attendanceCollectionRef.get();
-  //
-  //   final int attendanceCount = attendanceQuerySnapshot.size;
-  //
-  //   int calculatedUserLevel =0;
-  //
-  //   calculatedUserLevel = attendanceCount ~/ 5;
-  //
-  //   print('calculatedUserLevel: $calculatedUserLevel');
-  //   await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(uid)
-  //       .update({'level': calculatedUserLevel});
-  //
-  //   setState(() {
-  //     userLevel = calculatedUserLevel;
-  //   });
-  //
-  //   setState(() {
-  //     userLevel = calculatedUserLevel;
-  //   });
-  //
-  //   print('Attendance Count: $attendanceCount');
-  // }
-
-
 
   @override
   Widget build(BuildContext context) {

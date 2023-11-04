@@ -45,6 +45,34 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
   );
 }
 
+TextField reusableMulitpleLineField(
+    String text, IconData icon, TextEditingController controller,
+    {Widget? suffixIcon}) {
+  return TextField(
+    controller: controller,
+    cursorColor: Colors.white,
+    keyboardType: TextInputType.multiline,
+    maxLines: 10,
+    minLines: 1,
+    style: TextStyle(color: Colors.white.withOpacity(0.9)),
+    decoration: InputDecoration(
+      prefixIcon: Icon(
+        icon,
+        color: Colors.white70,
+      ),
+      labelText: text,
+      labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
+      filled: true,
+      floatingLabelBehavior: FloatingLabelBehavior.never,
+      fillColor: Colors.white12.withOpacity(0.1),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
+      suffixIcon: suffixIcon,
+    ),
+  );
+}
+
 Container signInSignUpButton(
     BuildContext context, String label, Function onTap) {
   return Container(
@@ -84,11 +112,11 @@ class UserDataFetcher {
 
     if (uid != null) {
       DocumentReference userDocRef =
-      FirebaseFirestore.instance.collection('users').doc(uid);
+          FirebaseFirestore.instance.collection('users').doc(uid);
 
       userDocRef.get().then((DocumentSnapshot documentSnapshot) {
         Map<String, dynamic>? userData =
-        documentSnapshot.data() as Map<String, dynamic>?;
+            documentSnapshot.data() as Map<String, dynamic>?;
 
         setStateCallback(userData?['email'], userData?['address']);
       });

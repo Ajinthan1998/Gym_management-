@@ -28,10 +28,10 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
 
   FirebaseStorage storage = FirebaseStorage.instance;
   CollectionReference imageCollection =
-  FirebaseFirestore.instance.collection('ownWorkouts');
+      FirebaseFirestore.instance.collection('ownWorkouts');
 
   CollectionReference usersCollection =
-  FirebaseFirestore.instance.collection('users');
+      FirebaseFirestore.instance.collection('users');
 
   XFile? pickedImageFile;
   File? pickedVideoFile;
@@ -86,13 +86,13 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
       String imagePath = 'ownWorkouts/$fileName';
 
       await storage.ref().child(imagePath).putFile(
-        imageFile,
-        SettableMetadata(
-          customMetadata: {
-            'uploaded_by': uid,
-          },
-        ),
-      );
+            imageFile,
+            SettableMetadata(
+              customMetadata: {
+                'uploaded_by': uid,
+              },
+            ),
+          );
 
       imageUrl = await storage.ref().child(imagePath).getDownloadURL();
     }
@@ -103,13 +103,13 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
       String videoPath = 'ownWorkouts/$fileName';
 
       await storage.ref().child(videoPath).putFile(
-        videoFile,
-        SettableMetadata(
-          customMetadata: {
-            'uploaded_by': uid,
-          },
-        ),
-      );
+            videoFile,
+            SettableMetadata(
+              customMetadata: {
+                'uploaded_by': uid,
+              },
+            ),
+          );
 
       videoUrl = await storage.ref().child(videoPath).getDownloadURL();
     }
@@ -141,7 +141,7 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
       if (confirmUpload == true) {
         DocumentReference userDoc = usersCollection.doc(uid);
         DocumentReference ownWorkoutDoc =
-        userDoc.collection('ownWorkout').doc(fileName);
+            userDoc.collection('ownWorkout').doc(fileName);
         await ownWorkoutDoc.set({
           if (imageUrl != null) 'url': imageUrl,
           if (videoUrl != null) 'url': videoUrl,
@@ -194,28 +194,22 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
                 decoration: InputDecoration(
                   labelText: "Name",
                   labelStyle: TextStyle(
-                    color: Colors.white70,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.white70),
                   ),
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(right:50.0, top:3.0),
+                        padding: const EdgeInsets.all(0.0),
                         child: const Text(
                           "Category",
                           style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 25, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -241,11 +235,7 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
                         items: listItem.map((valueItem) {
                           return DropdownMenuItem(
                             value: valueItem,
-                            child: Text(valueItem, style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 20,
-                            ),),
-
+                            child: Text(valueItem),
                           );
                         }).toList(),
                       ),
@@ -257,42 +247,24 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
                 controller: _durationController,
                 decoration: InputDecoration(
                   labelText: "Workout duration(seconds)",
-                  labelStyle: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.white70),
-                  ),
+                  labelStyle:
+                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
               TextFormField(
                 controller: _restTimeController,
                 decoration: InputDecoration(
                   labelText: "Rest time(seconds)",
-                  labelStyle: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.white70),
-                  ),
+                  labelStyle:
+                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
               TextFormField(
                 controller: _instructionTextController,
                 decoration: InputDecoration(
                   labelText: "Give the Instruction",
-                  labelStyle: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: Colors.white70),
-                  ),
+                  labelStyle:
+                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(
@@ -320,10 +292,10 @@ class _AddOwnWorkoutsState extends State<AddOwnWorkouts> {
                         onPressed: () async {
                           await _pickVideo();
                           videoController =
-                          VideoPlayerController.file(pickedVideoFile!)
-                            ..initialize().then((_) {
-                              setState(() {});
-                            });
+                              VideoPlayerController.file(pickedVideoFile!)
+                                ..initialize().then((_) {
+                                  setState(() {});
+                                });
                         },
                         icon: const Icon(Icons.video_library_sharp),
                         label: const Text('Pick Video'),

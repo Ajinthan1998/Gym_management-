@@ -64,6 +64,8 @@ dependencies:
   audioplayers: ^4.1.0
   sizer: ^2.0.15
   responsive_framework: ^1.0.0
+  flutter_local_notifications: ^9.1.5
+
 
 
 

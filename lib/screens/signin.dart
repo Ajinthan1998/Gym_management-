@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sample_app/screens/recpetionist/recNavigation.dart';
@@ -10,6 +11,7 @@ import '../reusable_widgets/reusable_widgets.dart';
 
 import 'coach/coachNav.dart';
 import 'coach/coachSalary.dart';
+import 'initialScreen.dart';
 import 'member/userNav.dart';
 import 'member/forgot_pw.dart';
 
@@ -31,6 +33,40 @@ class _SigninState extends State<Signin> {
 
   String _errorMessage = '';
   SharedPreferences? _prefs;
+  String? pushToken;
+  bool _isMounted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isMounted = true;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _isMounted = false;
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('JK Membership'),
+          content: Text('Your account has been expired'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> setUser(String uid) async {
     if (_prefs == null) {
@@ -39,10 +75,44 @@ class _SigninState extends State<Signin> {
     _prefs?.setString('uid', uid);
   }
 
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text(
+        "OK",
+        style: TextStyle(color: Colors.red),
+      ),
+      onPressed: () {
+        // Navigator.pop(
+        //     context, MaterialPageRoute(builder: (context) => Signin()));
+        FirebaseAuth.instance.signOut();
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("JK Fitness"),
+      content: Text("Your membership has been expired."),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String _userRole = '';
     String _username = '';
+    String _expirationStatus = 'Expired';
     String _uid = '';
     void navigateToRoleScreen() {
       if (_userRole == 'coach') {
@@ -50,15 +120,20 @@ class _SigninState extends State<Signin> {
             context, MaterialPageRoute(builder: (context) => CoachScreen()));
         // Navigator.pushNamed(context, 'coach/coachHome/coachScreen');
       } else if (_userRole == 'user') {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Home()));
+        if (_expirationStatus == 'Active') {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Home()));
+        } else {
+          // showAlertDialog(context);
+          _showDialog();
+        }
+
         // Navigator.pushNamed(context, 'member/userNav/Home');
       } else if (_userRole == 'receptionist') {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => ReceptionistScreen()));
         // Navigator.pushNamed(context, 'member/userNav/Home');
       }
-      // Add more roles and corresponding screens if needed
     }
 
     return MaterialApp(
@@ -80,7 +155,7 @@ class _SigninState extends State<Signin> {
                           child: CircleAvatar(
                             radius: 150.0,
                             backgroundImage:
-                            AssetImage('assets/images/jk fitness.jpg'),
+                                AssetImage('assets/images/jk fitness.jpg'),
                           ),
                         ),
                         SizedBox(
@@ -112,8 +187,8 @@ class _SigninState extends State<Signin> {
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                                  return ForgotPasswordPage();
-                                }));
+                              return ForgotPasswordPage();
+                            }));
                           },
                           child: Text(
                             'Forgot Password',
@@ -144,27 +219,44 @@ class _SigninState extends State<Signin> {
 
                             // for role based login
                             if (userSnapshot.exists) {
+                              pushToken =
+                                  await FirebaseMessaging.instance.getToken();
+                              CollectionReference usersCollection =
+                                  FirebaseFirestore.instance
+                                      .collection('users');
+                              usersCollection.doc(uid).update({
+                                'pushToken': pushToken,
+                              });
                               setState(() {
                                 _userRole = userSnapshot['role'];
                                 _username = userSnapshot['username'];
+                                if (_userRole == 'user') {
+                                  _expirationStatus =
+                                      userSnapshot['expirationStatus'];
+                                }
+
                                 _uid = uid!;
                               });
                               navigateToRoleScreen();
+                              // Initial();
                             } else {
                               // Handle user document not found error
                             }
-
-                            setState(() {
-                              _errorMessage = '';
-                            });
+                            if (_isMounted) {
+                              setState(() {
+                                _errorMessage = '';
+                              });
+                            }
 
                             _emailTextController.clear();
                             _passwordTextController.clear();
                           } catch (e) {
                             print("Error: $e");
-                            setState(() {
-                              _errorMessage = 'Invalid email or password';
-                            });
+                            if (_isMounted) {
+                              setState(() {
+                                _errorMessage = 'Invalid email or password';
+                              });
+                            }
                           }
                         }),
                       ],
